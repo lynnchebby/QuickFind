@@ -1,5 +1,9 @@
-import './assets/main.css'
+// ✅ Import Tailwind CSS first
+import './assets/tailwind.css' // <--- MAKE SURE this file contains @tailwind directives
+
+// Existing imports
 import 'preline/preline'
+import './assets/main.css' // if this exists, it's fine to keep after tailwind
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
@@ -8,13 +12,11 @@ import App from './App.vue'
 import router from './router'
 import PortalVue from 'portal-vue'
 
-// Import the functions you need from the SDKs you need
+// Firebase config
 import { initializeApp } from 'firebase/app'
 import { getFirestore } from 'firebase/firestore'
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
+// Your Firebase project config
 const firebaseConfig = {
   apiKey: 'AIzaSyC7573Y8YUZWcfOB7kuMA74YKDknYUY-Mw',
   authDomain: 'ecosystem-a6cee.firebaseapp.com',
@@ -35,3 +37,4 @@ app.use(PortalVue)
 app.use(router)
 
 app.mount('#app')
+
