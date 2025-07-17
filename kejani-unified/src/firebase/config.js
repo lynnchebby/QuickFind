@@ -3,7 +3,7 @@ import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 
-// 🔐 Replace these with your real Firebase values
+// 🔐  Firebase values
 const firebaseConfig = {
   apiKey: "AIzaSyCJqOFrfyCekuwUx55pCtZTn_bQjYjQ94c",
   authDomain: "kejani-unified.firebaseapp.com",

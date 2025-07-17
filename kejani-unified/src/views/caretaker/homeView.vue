@@ -5,7 +5,7 @@
       <!-- Title -->
 
       <div class="mx-auto max-w-2xl mb-8 lg:mb-14 text-center">
-        <h1 class="text-4xl sm:text-6xl font-bold text-gray-800 dark:text-neutral-200">KEJANI</h1>
+        <h1 class="text-4xl sm:text-6xl font-bold text-gray-800 dark:text-neutral-200">QuickFind</h1>
         <h2
           v-if="user && user.displayName"
           class="text-3xl lg:text-4xl text-gray-800 font-bold dark:text-neutral-200"
@@ -1000,43 +1000,35 @@
   </footer>
   <!-- ========== END FOOTER ========== -->
 </template>
-
 <script setup>
-// const user = computed(() => authStore.user)
 import { ref, onMounted, computed, watch } from 'vue'
 import { universityStore } from '@/stores/universityStore'
 import { useCaretakerStore } from '@/stores/caretakerStore'
 import { useAuthStore } from '@/stores/auth'
 
-onMounted(() => {
-  authStore.fetchUser() // Fetch the logged-in caretaker right when the app loads
-})
-const user = computed(() => authStore.user)
+// Store setup
+const firestoreStore = universityStore()
+const caretakerStore = useCaretakerStore()
+const authStore = useAuthStore()
 
+// Reactive state
 const universities = ref([])
 const locations = ref([])
+const homes = ref([])
+
 const selectedUniversity = ref('')
 const selectedLocation = ref('')
-const hostelName = ref('')
+const selectedHome = ref('')
+
 const caretakerNumber = ref('')
 const hostelType = ref('')
 const rent = ref('')
 const deposit = ref('')
 const selectedFiles = ref([])
 
-// Handle file input and ensure it's properly stored
-const handleFiles = (e) => {
-  if (e.target.files.length === 3) {
-    selectedFiles.value = Array.from(e.target.files) // Convert FileList to an array
-  } else {
-    alert('Please select exactly 3 images.')
-    selectedFiles.value = []
-  }
-}
-const firestoreStore = universityStore()
-const caretakerStore = useCaretakerStore()
-const authStore = useAuthStore()
+const user = computed(() => authStore.user)
 
+// Fetch data
 const fetchUniversities = async () => {
   universities.value = await firestoreStore.getUniversities()
 }
@@ -1045,24 +1037,56 @@ const fetchLocations = async () => {
   locations.value = await firestoreStore.getLocations(selectedUniversity.value)
 }
 
-// Check if form is ready for submission
-const canSubmit = computed(
-  () =>
+const fetchHomes = async () => {
+  homes.value = await firestoreStore.getHomes(selectedUniversity.value, selectedLocation.value)
+}
+
+// Watchers to fetch dependent data
+watch(selectedUniversity, async () => {
+  selectedLocation.value = ''
+  selectedHome.value = ''
+  locations.value = []
+  homes.value = []
+  await fetchLocations()
+})
+
+watch(selectedLocation, async () => {
+  selectedHome.value = ''
+  homes.value = []
+  await fetchHomes()
+})
+
+// File handler
+const handleFiles = (e) => {
+  const files = Array.from(e.target.files)
+  if (files.length === 3) {
+    selectedFiles.value = files
+  } else {
+    alert('Please select exactly 3 images.')
+    selectedFiles.value = []
+  }
+}
+
+// Submission eligibility
+const canSubmit = computed(() => {
+  return (
     selectedUniversity.value &&
     selectedLocation.value &&
-    hostelName.value &&
+    selectedHome.value &&
     caretakerNumber.value &&
     rent.value &&
     deposit.value &&
     hostelType.value &&
     selectedFiles.value.length === 3
-)
+  )
+})
 
+// Form submission
 const addHostel = async () => {
   try {
     await caretakerStore.addHostel(
-      hostelName.value,
-      authStore.caretakerId, // Caretaker ID from auth store
+      selectedHome.value,
+      authStore.caretakerId,
       selectedUniversity.value,
       selectedLocation.value,
       caretakerNumber.value,
@@ -1071,20 +1095,21 @@ const addHostel = async () => {
       hostelType.value,
       selectedFiles.value
     )
-    // Reset the form after submission
-    hostelName.value = ''
+    // Reset fields
+    selectedHome.value = ''
     caretakerNumber.value = ''
-    rent.value = 0
-    deposit.value = 0
-    hostelType.value = 'single'
+    rent.value = ''
+    deposit.value = ''
+    hostelType.value = ''
     selectedUniversity.value = ''
     selectedLocation.value = ''
+    selectedFiles.value = []
   } catch (error) {
     console.error('Error submitting hostel:', error)
   }
 }
 
-// Watch for changes in caretakerId and fetch hostels
+// Fetch hostels on login
 watch(
   () => authStore.caretakerId,
   (newCaretakerId) => {
@@ -1094,8 +1119,10 @@ watch(
   }
 )
 
-// Fetch hostels when the component is mounted
+// Initial fetch
 onMounted(() => {
+  fetchUniversities()
+
   if (authStore.caretakerId) {
     caretakerStore.fetchCaretakerHostels(
       authStore.caretakerId,
@@ -1103,20 +1130,16 @@ onMounted(() => {
       'selectedLocation'
     )
   }
+
+  authStore.fetchUser()
 })
 
-onMounted(() => {
-  fetchUniversities() // Fetch universities when component mounts
-}),
-  onMounted(() => {
-    if (authStore.caretakerId) {
-      caretakerStore.fetchCaretakerHostels(authStore.caretakerId)
-    }
-  })
-
+// Logout function
 const logOut = () => {
   authStore.logOut()
 }
 </script>
+
+
 
 <style></style>

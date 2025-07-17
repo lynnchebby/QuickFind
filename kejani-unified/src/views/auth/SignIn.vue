@@ -31,7 +31,7 @@
             v-model="email"
             type="email"
             id="email"
-            class="w-full px-4 py-3 rounded-lg bg-neutral-900 text-white border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="form-input"
             required
           />
         </div>
@@ -39,15 +39,19 @@
         <div>
           <div class="flex justify-between items-center mb-1">
             <label for="password" class="text-sm text-white">Password</label>
-<router-link to="/reset-password" class="text-sm text-blue-500 hover:underline">Forgot password?</router-link>
+            <router-link to="/reset-password" class="text-sm text-blue-500 hover:underline">Forgot password?</router-link>
           </div>
-          <input
-            v-model="password"
-            type="password"
-            id="password"
-            class="w-full px-4 py-3 rounded-lg bg-neutral-900 text-white border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
+          <div class="relative">
+            <input
+              :type="showPassword ? 'text' : 'password'"
+              v-model="password"
+              class="form-input pr-10"
+              required
+            />
+            <span class="absolute right-3 top-3 text-white cursor-pointer" @click="showPassword = !showPassword">
+              {{ showPassword ? '🙈' : '👁️' }}
+            </span>
+          </div>
         </div>
 
         <div class="flex items-center gap-2">
@@ -57,7 +61,7 @@
 
         <button
           type="submit"
-          class="w-full py-3 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition"
+          class="form-button"
         >
           Sign in
         </button>
@@ -78,8 +82,8 @@ export default {
     const router = useRouter()
     const email = ref('')
     const password = ref('')
+    const showPassword = ref(false)
 
-    // 🔐 Email/Password Sign-In
     const handleEmailLogin = async () => {
       try {
         const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value)
@@ -101,7 +105,6 @@ export default {
       }
     }
 
-    // 🔐 Google Sign-In
     const signInWithGoogle = async () => {
       try {
         const provider = new GoogleAuthProvider()
@@ -114,7 +117,7 @@ export default {
         let role
 
         if (!userDoc.exists()) {
-          role = 'student' // Default if not set during signup
+          role = 'student'
           await setDoc(userRef, {
             email: user.email,
             name: user.displayName,
@@ -133,7 +136,22 @@ export default {
       }
     }
 
-    return { email, password, handleEmailLogin, signInWithGoogle }
+    return {
+      email,
+      password,
+      showPassword,
+      handleEmailLogin,
+      signInWithGoogle
+    }
   }
 }
 </script>
+
+<style scoped>
+.form-input {
+  @apply w-full px-4 py-3 rounded-lg bg-neutral-900 text-white border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-blue-500;
+}
+.form-button {
+  @apply w-full py-3 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition;
+}
+</style>
