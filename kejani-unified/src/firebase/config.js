@@ -8,7 +8,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyCJqOFrfyCekuwUx55pCtZTn_bQjYjQ94c",
   authDomain: "kejani-unified.firebaseapp.com",
   projectId: "kejani-unified",
-  storageBucket: "kejani-unified.appspot.com", // ✅ corrected here
+  storageBucket: "kejani-unified.appspot.com",
   messagingSenderId: "624771916185",
   appId: "1:624771916185:web:56bb2183bb105e131bf308",
   measurementId: "G-CYHYPLQ3NX"
