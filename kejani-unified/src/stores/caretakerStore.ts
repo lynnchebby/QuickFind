@@ -9,10 +9,10 @@ import {
   updateDoc,
   addDoc,
   getDoc,
-  deleteDoc
+  deleteDoc,
+  Timestamp
 } from 'firebase/firestore';
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import { db } from '../firebase/config.js';
+import { db } from '../firebase/config'; // <--- Ensure this path is correct for your Firebase config
 
 // --- Interfaces ---
 interface Hostel {
@@ -23,7 +23,7 @@ interface Hostel {
   price: number;
   deposit: number;
   hostelType: string;
-  imageUrl: string; // Single image URL
+  imageUrls: string[]; // Array of image URLs (now Cloudinary URLs)
   caretakerPhoneNumber: string; // Contact for *this specific* hostel listing
   isAvailable: boolean;
   createdAt?: Date; // Timestamp for creation
@@ -33,27 +33,27 @@ interface CaretakerProfile {
   uid: string;
   email: string;
   displayName: string;
-  phoneNumber?: string; // Caretaker's primary personal contact number
+  phoneNumber?: string;
   createdAt?: Date;
-  // Add any other caretaker-specific profile fields here (e.g., bio, other contact info)
 }
+
+// --- Cloudinary Configuration (ADD THESE LINES) ---
+// IMPORTANT: Replace with your actual Cloudinary Cloud Name and Unsigned Upload Preset name
+const CLOUDINARY_CLOUD_NAME = 'dqny92tgm'; // e.g., 'dupaa123'
+const CLOUDINARY_UPLOAD_PRESET = 'hostel_images'; // e.g., 'my_unsigned_hostel_upload'
+// --- END Cloudinary Configuration ---
 
 export const useCaretakerStore = defineStore('caretaker', {
   state: () => ({
-    caretakerProfile: null as CaretakerProfile | null, // Stores the caretaker's own profile
-    hostels: [] as Hostel[], // Stores hostels managed by the logged-in caretaker
+    caretakerProfile: null as CaretakerProfile | null,
+    hostels: [] as Hostel[],
     loading: false,
     error: null as string | null,
   }),
 
   actions: {
     /**
-     * Initializes or fetches the caretaker's profile document in the 'caretakers' collection.
-     * This should be called once a caretaker user logs in (e.g., from auth.ts).
-     * @param {string} userUid - The Firebase User UID.
-     * @param {string} userEmail - The user's email.
-     * @param {string} userDisplayName - The user's display name.
-     * @param {string} [phoneNumber=''] - An optional primary phone number for the caretaker's profile.
+     * Initializes or fetches the caretaker's profile document. (No change here)
      */
     async setupCaretakerProfile(userUid: string, userEmail: string, userDisplayName: string, phoneNumber: string = '') {
       this.loading = true;
@@ -63,7 +63,6 @@ export const useCaretakerStore = defineStore('caretaker', {
         const docSnap = await getDoc(caretakerDocRef);
 
         if (!docSnap.exists()) {
-          // If caretaker profile doesn't exist, create it for the first time
           await setDoc(caretakerDocRef, {
             email: userEmail,
             displayName: userDisplayName,
@@ -79,15 +78,14 @@ export const useCaretakerStore = defineStore('caretaker', {
             createdAt: new Date()
           };
         } else {
-          // If profile exists, load its data
           const data = docSnap.data();
           console.log('Caretaker profile loaded:', data);
           this.caretakerProfile = {
             uid: userUid,
             email: data.email,
             displayName: data.displayName,
-            phoneNumber: data.phoneNumber || phoneNumber, // Use existing or provided
-            createdAt: data.createdAt?.toDate() || new Date()
+            phoneNumber: data.phoneNumber || phoneNumber,
+            createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : new Date()
           };
         }
       } catch (err: any) {
@@ -100,8 +98,7 @@ export const useCaretakerStore = defineStore('caretaker', {
     },
 
     /**
-     * Adds a new hostel managed by the caretaker.
-     * This creates the main hostel document and a lightweight discovery reference.
+     * Adds a new hostel managed by the caretaker, including uploading images to Cloudinary.
      * @param {string} caretakerUid - The UID of the caretaker managing this hostel.
      * @param {string} universityId - The ID of the university this hostel belongs to.
      * @param {string} locationId - The ID of the location within the university.
@@ -110,69 +107,97 @@ export const useCaretakerStore = defineStore('caretaker', {
      * @param {number} rent - Monthly rent amount.
      * @param {number} deposit - Deposit amount.
      * @param {string} hostelType - Type of hostel (e.g., "Bedsitter", "One Bedroom").
-     * @param {File} imageFile - The single image file to upload.
+     * @param {File[]} imageFiles - The array of image files to upload.
      */
     async addHostel(
       caretakerUid: string,
-      universityId: string,    // Moved up
-      locationId: string,      // Moved up
-      hostelName: string,      // Moved up
+      universityId: string,
+      locationId: string,
+      hostelName: string,
       caretakerPhoneNumber: string,
       rent: number,
       deposit: number,
       hostelType: string,
-      imageFile: File
+      imageFiles: File[]
     ) {
-      if (!imageFile) {
-        this.error = 'Please select an image file.';
+      // Basic validation for images
+      if (!imageFiles || imageFiles.length === 0) {
+        this.error = 'Please select at least one image file.';
         console.error('Error: No image file selected.');
         return;
       }
+      if (imageFiles.length > 3) {
+        this.error = 'You can only upload a maximum of 3 images.';
+        console.error('Error: Too many images selected.');
+        return;
+      }
+
       this.loading = true;
       this.error = null;
 
       try {
-        const storage = getStorage();
+        const imageUrls: string[] = []; // Array to store all uploaded image URLs (from Cloudinary)
 
-        // 1. Upload image to Firebase Storage
-        // Use a unique path based on caretaker ID and a timestamp for the image name
-        const imageStorageRef = storageRef(storage, `hostel_images/${caretakerUid}/${imageFile.name}_${Date.now()}`);
-        const uploadResult = await uploadBytes(imageStorageRef, imageFile);
-        const imageUrl = await getDownloadURL(uploadResult.ref);
-        console.log('Image uploaded successfully:', imageUrl);
+        // 1. Upload all images to Cloudinary
+        for (const file of imageFiles) {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET); // Your unsigned upload preset
+
+          // Optional: Add folder for better organization in Cloudinary
+          formData.append('folder', `hostel_images/${caretakerUid}`);
+
+          const response = await fetch(
+            `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+            {
+              method: 'POST',
+              body: formData,
+            }
+          );
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`Cloudinary upload failed for ${file.name}: ${errorData.error.message || response.statusText}`);
+          }
+
+          const data = await response.json();
+          imageUrls.push(data.secure_url); // Store the secure URL provided by Cloudinary
+          console.log(`Image uploaded to Cloudinary: ${data.secure_url}`);
+        }
+        console.log('All images uploaded to Cloudinary. URLs:', imageUrls);
 
         // 2. Add the MAIN hostel document under the caretaker's 'hostels' subcollection
-        // Use addDoc to get an auto-generated ID for the hostel.
         const caretakerHostelsCollectionRef = collection(db, `caretakers/${caretakerUid}/hostels`);
         const newHostelRef = await addDoc(caretakerHostelsCollectionRef, {
           name: hostelName,
           universityId: universityId,
           locationId: locationId,
-          caretakerPhoneNumber: caretakerPhoneNumber, // Specific phone for this hostel
+          caretakerPhoneNumber: caretakerPhoneNumber,
           price: rent,
           deposit: deposit,
           hostelType: hostelType,
-          imageUrl: imageUrl, // Storing the single image URL
-          isAvailable: true, // Default to available
+          imageUrls: imageUrls, // Store the Cloudinary URLs
+          isAvailable: true,
           createdAt: new Date(),
         });
 
         // 3. Create a lightweight REFERENCE in the University/Location's 'hostels' subcollection
-        // This is crucial for public discovery by students. Use the SAME auto-generated ID.
         const universityLocationHostelRef = doc(
           db,
           `Universities/${universityId}/locations/${locationId}/hostels`,
-          newHostelRef.id // Use the same document ID generated for the main hostel
+          newHostelRef.id
         );
         await setDoc(universityLocationHostelRef, {
           caretakerUid: caretakerUid,
-          hostelDocId: newHostelRef.id, // Explicitly store the ID again for clarity in reference
-          // You could include other minimal, denormalized data here for faster display in search results,
-          // e.g., name: hostelName, imageUrl: imageUrl, price: rent
+          hostelDocId: newHostelRef.id,
+          primaryImageUrl: imageUrls[0] || '', // Use the first Cloudinary URL as primary
+          name: hostelName,
+          price: rent,
+          hostelType: hostelType,
+          isAvailable: true,
         });
 
         console.log('Hostel added successfully with ID:', newHostelRef.id);
-        // Refresh the caretaker's local list of hostels
         await this.fetchCaretakerHostels(caretakerUid);
       } catch (error: any) {
         console.error('Error adding hostel: ', error);
@@ -184,16 +209,13 @@ export const useCaretakerStore = defineStore('caretaker', {
     },
 
     /**
-     * Fetches all hostels managed by a specific caretaker UID from their dedicated subcollection.
-     * This is the efficient query for the caretaker's dashboard.
-     * @param {string} caretakerUid - The UID of the caretaker to fetch hostels for.
+     * Fetches all hostels managed by a specific caretaker UID. (No change here)
      */
     async fetchCaretakerHostels(caretakerUid: string) {
       console.log('Fetching hostels for caretaker:', caretakerUid);
       this.loading = true;
       this.error = null;
       try {
-        // Direct query to the caretaker's specific hostels subcollection
         const caretakerHostelsCollectionRef = collection(db, `caretakers/${caretakerUid}/hostels`);
         const querySnapshot = await getDocs(query(caretakerHostelsCollectionRef));
 
@@ -205,10 +227,10 @@ export const useCaretakerStore = defineStore('caretaker', {
           price: doc.data().price,
           deposit: doc.data().deposit,
           hostelType: doc.data().hostelType,
-          imageUrl: doc.data().imageUrl,
+          imageUrls: doc.data().imageUrls || [],
           caretakerPhoneNumber: doc.data().caretakerPhoneNumber,
           isAvailable: doc.data().isAvailable,
-          createdAt: doc.data().createdAt?.toDate() || new Date(), // Convert Firestore Timestamp to Date
+          createdAt: doc.data().createdAt instanceof Timestamp ? doc.data().createdAt.toDate() : new Date(),
         }));
 
         if (fetchedHostels.length === 0) {
@@ -227,30 +249,35 @@ export const useCaretakerStore = defineStore('caretaker', {
     },
 
     /**
-     * Toggles the availability status of a specific hostel managed by the caretaker.
-     * This updates the main hostel document under the caretaker's subcollection.
-     * @param {string} caretakerUid - The UID of the caretaker who owns the hostel.
-     * @param {string} hostelId - The ID of the hostel document to toggle.
-     * @param {boolean} currentAvailability - The current availability status.
+     * Toggles the availability status of a specific hostel. (No change here)
      */
     async toggleHostelAvailability(
       caretakerUid: string,
       hostelId: string,
-      currentAvailability: boolean
+      currentAvailability: boolean,
+      universityId: string,
+      locationId: string
     ) {
       this.loading = true;
       this.error = null;
       try {
-        // Update the main hostel document in the caretaker's subcollection
+        const newAvailability = !currentAvailability;
+
         const hostelRef = doc(db, `caretakers/${caretakerUid}/hostels`, hostelId);
-        await updateDoc(hostelRef, { isAvailable: !currentAvailability });
+        await updateDoc(hostelRef, { isAvailable: newAvailability });
+        console.log(`Main hostel document ${hostelId} availability toggled to ${newAvailability}.`);
 
-        console.log(`Hostel ${hostelId} availability toggled to ${!currentAvailability}.`);
+        const universityLocationHostelRef = doc(
+          db,
+          `Universities/${universityId}/locations/${locationId}/hostels`,
+          hostelId
+        );
+        await updateDoc(universityLocationHostelRef, { isAvailable: newAvailability });
+        console.log(`Public reference for hostel ${hostelId} availability toggled to ${newAvailability}.`);
 
-        // Immediately update the local state to reflect the change
         const index = this.hostels.findIndex((h) => h.id === hostelId);
         if (index !== -1) {
-          this.hostels[index].isAvailable = !currentAvailability;
+          this.hostels[index].isAvailable = newAvailability;
         }
       } catch (error: any) {
         console.error('Error toggling hostel availability:', error);
@@ -262,74 +289,100 @@ export const useCaretakerStore = defineStore('caretaker', {
     },
 
     /**
-     * Updates an existing hostel's details managed by the caretaker.
-     * Only updates the main hostel document under the caretaker's subcollection.
-     * @param {string} caretakerUid - The UID of the caretaker.
-     * @param {string} hostelId - The ID of the hostel to update.
-     * @param {Partial<Hostel>} newData - An object containing the fields to update.
+     * Updates an existing hostel's details. (No change to core logic, but now handles Cloudinary URLs)
      */
-    async updateHostel(caretakerUid: string, hostelId: string, newData: Partial<Hostel>) {
-        this.loading = true;
-        this.error = null;
-        try {
-            const hostelRef = doc(db, `caretakers/${caretakerUid}/hostels`, hostelId);
-            await updateDoc(hostelRef, newData);
-            console.log(`Hostel ${hostelId} updated successfully.`);
-            await this.fetchCaretakerHostels(caretakerUid); // Refetch to ensure local state is fresh
-        } catch (error: any) {
-            console.error('Error updating hostel:', error);
-            this.error = 'Failed to update hostel: ' + error.message;
-            throw error;
-        } finally {
-            this.loading = false;
+    async updateHostel(caretakerUid: string, hostelId: string, universityId: string, locationId: string, newData: Partial<Hostel>) {
+      this.loading = true;
+      this.error = null;
+      try {
+        const hostelRef = doc(db, `caretakers/${caretakerUid}/hostels`, hostelId);
+        await updateDoc(hostelRef, newData);
+        console.log(`Hostel ${hostelId} updated successfully in caretaker's collection.`);
+
+        const updatePublicData: { [key: string]: any } = {};
+
+        if (newData.name !== undefined) updatePublicData.name = newData.name;
+        if (newData.price !== undefined) updatePublicData.price = newData.price;
+        if (newData.hostelType !== undefined) updatePublicData.hostelType = newData.hostelType;
+        if (newData.isAvailable !== undefined) updatePublicData.isAvailable = newData.isAvailable;
+
+        if (newData.imageUrls !== undefined) {
+          if (newData.imageUrls && newData.imageUrls.length > 0) {
+            updatePublicData.primaryImageUrl = newData.imageUrls[0];
+          } else {
+            updatePublicData.primaryImageUrl = '';
+          }
         }
+
+        const publicRef = doc(db, `Universities/${universityId}/locations/${locationId}/hostels`, hostelId);
+
+        if (Object.keys(updatePublicData).length > 0) {
+          await updateDoc(publicRef, updatePublicData);
+          console.log(`Public reference for hostel ${hostelId} updated.`);
+        }
+
+        await this.fetchCaretakerHostels(caretakerUid);
+      } catch (error: any) {
+        console.error('Error updating hostel:', error);
+        this.error = 'Failed to update hostel: ' + error.message;
+        throw error;
+      } finally {
+        this.loading = false;
+      }
     },
 
     /**
-     * Deletes a hostel managed by a caretaker, its corresponding reference, and associated image.
-     * @param {string} caretakerUid - The UID of the caretaker.
-     * @param {string} hostelId - The ID of the hostel to delete.
-     * @param {string} universityId - The ID of the university the hostel belongs to (for removing reference).
-     * @param {string} locationId - The ID of the location the hostel belongs to (for removing reference).
-     * @param {string} imageUrl - The URL of the image to delete from Storage.
+     * Deletes a hostel and its corresponding Firestore reference.
+     * IMPORTANT: Image deletion from Cloudinary is complex from the frontend directly without an API Secret.
+     * For production, this should ideally be handled via a secure backend/serverless function.
      */
-    async deleteHostel(caretakerUid: string, hostelId: string, universityId: string, locationId: string, imageUrl: string) {
-        this.loading = true;
-        this.error = null;
-        try {
-            // 1. Attempt to delete the image from Firebase Storage
-            const storage = getStorage();
-            const imageRef = storageRef(storage, imageUrl);
-            try {
-                await deleteObject(imageRef);
-                console.log('Image deleted from storage successfully.');
-            } catch (storageError: any) {
-                // Warn if image deletion fails (e.g., image already gone or permissions)
-                console.warn('Could not delete image from storage (it might not exist or permissions issue):', storageError.message);
-            }
+    async deleteHostel(caretakerUid: string, hostelId: string, universityId: string, locationId: string, imageUrls: string[]) {
+      this.loading = true;
+      this.error = null;
+      try {
+        // --- CLOUDINARY IMAGE DELETION WARNING ---
+        // Deleting images from Cloudinary securely typically requires a signed request
+        // using your Cloudinary API Secret. Exposing your API Secret in frontend code
+        // is INSECURE. For production, you would generally:
+        // 1. Send a request from your frontend to a backend/serverless function.
+        // 2. The backend securely calls the Cloudinary Admin API to delete images.
+        console.warn("Cloudinary image deletion requires secure server-side logic (e.g., via a backend/serverless function). Skipping direct image deletion from frontend for security reasons. Images will remain in Cloudinary unless manually deleted.");
+        console.log("Image URLs that would ideally be deleted:", imageUrls);
+        // --- END CLOUDINARY IMAGE DELETION WARNING ---
 
-            // 2. Delete the actual hostel document from the caretaker's subcollection
-            const hostelDocRef = doc(db, `caretakers/${caretakerUid}/hostels`, hostelId);
-            await deleteDoc(hostelDocRef);
+        // 1. Delete the actual hostel document from the caretaker's subcollection
+        const hostelDocRef = doc(db, `caretakers/${caretakerUid}/hostels`, hostelId);
+        await deleteDoc(hostelDocRef);
+        console.log(`Main hostel document ${hostelId} deleted successfully.`);
 
-            // 3. Delete the reference from the University/Location's 'hostels' subcollection
-            const universityLocationHostelRef = doc(
-                db,
-                `Universities/${universityId}/locations/${locationId}/hostels`,
-                hostelId
-            );
-            await deleteDoc(universityLocationHostelRef);
+        // 2. Delete the reference from the University/Location's 'hostels' subcollection
+        const universityLocationHostelRef = doc(
+          db,
+          `Universities/${universityId}/locations/${locationId}/hostels`,
+          hostelId
+        );
+        await deleteDoc(universityLocationHostelRef);
+        console.log(`Public reference for hostel ${hostelId} deleted successfully.`);
 
-            console.log(`Hostel ${hostelId} and its reference deleted successfully.`);
-            // Update the local state to remove the deleted hostel
-            this.hostels = this.hostels.filter(h => h.id !== hostelId);
-        } catch (error: any) {
-            console.error('Error deleting hostel:', error);
-            this.error = 'Failed to delete hostel: ' + error.message;
-            throw error;
-        } finally {
-            this.loading = false;
-        }
+        // Update the local state to remove the deleted hostel
+        this.hostels = this.hostels.filter(h => h.id !== hostelId);
+      } catch (error: any) {
+        console.error('Error deleting hostel:', error);
+        this.error = 'Failed to delete hostel: ' + error.message;
+        throw error;
+      } finally {
+        this.loading = false;
+      }
     },
+
+    /**
+     * Resets the store's state to its initial values. (No change here)
+     */
+    $reset() {
+      this.caretakerProfile = null;
+      this.hostels = [];
+      this.loading = false;
+      this.error = null;
+    }
   },
 });

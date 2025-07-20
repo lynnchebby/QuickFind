@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Caretaker Dashboard</h1>
+
     <CaretakerHome />
   </div>
 </template>

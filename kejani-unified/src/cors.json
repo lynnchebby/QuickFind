@@ -1,0 +1,7 @@
+[
+  {
+    "origin": ["http://localhost:5173", "http://localhost", "https://your-deployed-domain.web.app"],
+    "method": ["GET", "PUT", "POST", "DELETE"],
+    "maxAgeSeconds": 3600
+  }
+]
