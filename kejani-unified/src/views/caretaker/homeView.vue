@@ -34,6 +34,13 @@
         </p>
       </div>
 
+      <!-- Custom Message Display (Add this near the top of your <template> for global messages) -->
+      <div v-if="showMessage" :class="{ 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400': messageType === 'success', 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400': messageType === 'error' }"
+           class="fixed top-4 left-1/2 -translate-x-1/2 z-50 p-4 rounded-lg shadow-lg text-center transition-all duration-300 ease-out"
+           style="min-width: 300px;">
+        {{ messageText }}
+      </div>
+
       <div v-if="authStore.loading" class="text-center text-blue-600 dark:text-blue-400 my-8 py-4 px-6 bg-blue-50 dark:bg-neutral-900 rounded-lg shadow-md border border-blue-200 dark:border-blue-700">
         <div class="flex items-center justify-center space-x-2">
           <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -398,6 +405,108 @@
     </div>
 
     <ImageViewerModal v-model:modelValue="showImageViewer" :image-url="currentImageUrl" />
+
+    <!-- Custom Confirmation Modal -->
+    <div v-if="showConfirmationModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4">
+      <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-xl max-w-sm w-full p-6 sm:p-8 relative text-center">
+        <h3 class="text-xl font-bold text-gray-800 dark:text-neutral-200 mb-4">Confirm Action</h3>
+        <p class="text-gray-700 dark:text-neutral-300 mb-6">{{ confirmationMessage }}</p>
+        <div class="flex justify-center gap-4">
+          <button type="button" @click="cancelConfirmedAction"
+                  class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-md border border-gray-300 bg-white text-gray-800 shadow-sm hover:bg-gray-50 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300 dark:hover:bg-neutral-600 transition-all duration-200">
+            Cancel
+          </button>
+          <button type="button" @click="executeConfirmedAction"
+                  class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-md border border-transparent bg-blue-600 text-white shadow-sm hover:bg-blue-700 transition-all duration-200">
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hostel Edit Modal -->
+    <div v-if="showEditHostelModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-40 p-4">
+      <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-xl max-w-lg w-full p-6 sm:p-8 relative">
+        <h3 class="text-2xl font-bold text-gray-800 dark:text-neutral-200 mb-6 text-center">Edit Hostel</h3>
+
+        <form @submit.prevent="submitEditHostelForm" class="space-y-4">
+          <div>
+            <label for="editHostelName" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">Hostel Name</label>
+            <input type="text" id="editHostelName" v-model="editingHostel.name"
+                   class="py-2 px-3 block w-full border border-gray-300 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-200"
+                   required>
+          </div>
+
+          <div>
+            <label for="editPhoneNumber" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">Caretaker Phone Number</label>
+            <input type="text" id="editPhoneNumber" v-model="editingHostel.caretakerPhoneNumber"
+                   class="py-2 px-3 block w-full border border-gray-300 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-200"
+                   required>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="editRent" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">Rent</label>
+              <input type="number" id="editRent" v-model.number="editingHostel.price"
+                     class="py-2 px-3 block w-full border border-gray-300 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-200"
+                     required min="1">
+            </div>
+            <div>
+              <label for="editDeposit" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">Deposit</label>
+              <input type="number" id="editDeposit" v-model.number="editingHostel.deposit"
+                     class="py-2 px-3 block w-full border border-gray-300 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-200"
+                     required min="0">
+            </div>
+          </div>
+
+          <div>
+            <label for="editHostelType" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">Hostel Type</label>
+            <select id="editHostelType" v-model="editingHostel.hostelType"
+                    class="py-2 px-3 block w-full border border-gray-300 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-200"
+                    required>
+              <option value="">Select Type</option>
+              <option value="Bedsitter">Bedsitter</option>
+              <option value="One Bedroom">One Bedroom</option>
+              <option value="Shared Room">Shared Room</option>
+              <option value="Studio">Studio</option>
+            </select>
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <input type="checkbox" id="editIsAvailable" v-model="editingHostel.isAvailable"
+                   class="form-checkbox h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+            <label for="editIsAvailable" class="text-sm text-gray-700 dark:text-neutral-300">Is Available</label>
+          </div>
+
+          <!-- Image Upload for Edit (Simplified - you'll need to expand this) -->
+          <div class="mt-4">
+            <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">Current Images:</label>
+            <div v-if="editingHostel.imageUrls && editingHostel.imageUrls.length > 0" class="flex flex-wrap gap-2">
+              <img v-for="(url, index) in editingHostel.imageUrls" :key="index" :src="url"
+                   class="w-20 h-20 object-cover rounded-md border border-gray-200 dark:border-neutral-600"
+                   alt="Hostel Image">
+            </div>
+            <p v-else class="text-sm text-gray-500 dark:text-neutral-400">No current images.</p>
+            <p class="text-sm text-red-500 mt-2">
+              *Image re-upload/management during edit is not fully implemented in this example.
+              You would add input for new images here and handle their upload/replacement logic.
+            </p>
+          </div>
+
+
+          <div class="flex justify-end space-x-3 mt-6">
+            <button type="button" @click="cancelEdit"
+                    class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-md border border-gray-300 bg-white text-gray-800 shadow-sm hover:bg-gray-50 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300 dark:hover:bg-neutral-600 transition-all duration-200">
+              Cancel
+            </button>
+            <button type="submit"
+                    class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-md border border-transparent bg-blue-600 text-white shadow-sm hover:bg-blue-700 transition-all duration-200">
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -411,7 +520,7 @@ import { getAuth } from 'firebase/auth'; // Import getAuth for onAuthStateChange
 
 // Icons
 import CheckIcon from '@/components/icons/CheckIcon.vue';
-// Import ImageViewerModal
+// Import ImageViewerModal (assuming you have this component)
 import ImageViewerModal from '@/components/ImageViewerModal.vue';
 
 const authStore = useAuthStore();
@@ -443,6 +552,39 @@ const fileInput = ref(null); // Ref to the hidden file input element
 // Reactive state for the image viewer modal
 const showImageViewer = ref(false);
 const currentImageUrl = ref('');
+
+// Reactive state for edit modal
+const showEditHostelModal = ref(false);
+const editingHostel = reactive({
+  id: '',
+  name: '',
+  universityId: '',
+  locationId: '',
+  caretakerPhoneNumber: '',
+  price: null, // Renamed from rent in interface, ensure consistency
+  deposit: null,
+  hostelType: '',
+  imageUrls: [],
+  isAvailable: false,
+  caretakerUid: ''
+});
+const newImageFilesForEdit = ref([]); // To hold new image files during edit
+
+// Reactive state for custom alerts/messages
+const showMessage = ref(false);
+const messageText = ref('');
+const messageType = ref('success'); // 'success' or 'error'
+
+// --- Message Display Functions ---
+const displayMessage = (text, type = 'success') => {
+  messageText.value = text;
+  messageType.value = type;
+  showMessage.value = true;
+  setTimeout(() => {
+    showMessage.value = false;
+    messageText.value = '';
+  }, 3000); // Message disappears after 3 seconds
+};
 
 // --- Image Viewer Functions ---
 const openImageViewer = (imageUrl) => {
@@ -521,7 +663,7 @@ const appendFiles = (newFiles) => {
     const filesToProcess = newFiles.slice(0, filesToAddCount);
     form.imageFiles = [...form.imageFiles, ...filesToProcess];
   } else if (newFiles.length > 0) {
-    caretakerStore.error = `You can only upload a maximum of ${maxFiles} images.`;
+    displayMessage(`You can only upload a maximum of ${maxFiles} images.`, 'error');
   }
 
   // Clear the file input value to allow selecting the same file(s) again
@@ -552,24 +694,25 @@ const triggerFileInput = () => {
 const submitHostelForm = async () => {
   caretakerStore.error = null; // Clear previous errors
   caretakerStore.addHostelSuccess = false; // Reset success state
+  showMessage.value = false; // Clear any existing messages
 
   if (!user.value || !user.value.uid) {
-    caretakerStore.error = 'User not authenticated or UID not found. Please log in.';
+    displayMessage('User not authenticated or UID not found. Please log in.', 'error');
     console.error('Submit error: User not authenticated.');
     return;
   }
   if (!form.imageFiles || form.imageFiles.length === 0) {
-    caretakerStore.error = 'Please select at least one image file.';
+    displayMessage('Please select at least one image file.', 'error');
     console.error('Submit error: No image files.');
     return;
   }
   if (!form.hostelName || !form.selectedUniversity || !form.selectedLocation ||
       !form.caretakerPhoneNumber || form.rent === null || form.deposit === null || !form.hostelType) {
-    caretakerStore.error = 'Please fill in all required form fields.';
+    displayMessage('Please fill in all required form fields.', 'error');
     return;
   }
   if (form.rent <= 0 || form.deposit <= 0) {
-    caretakerStore.error = 'Rent and deposit must be greater than zero.';
+    displayMessage('Rent and deposit must be greater than zero.', 'error');
     return;
   }
 
@@ -586,17 +729,19 @@ const submitHostelForm = async () => {
       form.imageFiles
     );
 
-    if (!caretakerStore.error) {
-      caretakerStore.addHostelSuccess = true; // Set success state
+    if (!caretakerStore.error) { // Check store's error state after action
+      displayMessage('Hostel added successfully!', 'success');
       resetForm();
       // Optional: switch to hostel list view after successful addition
-      // currentView.value = 'hostelList';
+      currentView.value = 'hostelList';
+    } else {
+      displayMessage(caretakerStore.error, 'error'); // Display error from store
     }
 
   } catch (err) {
     console.error('Error during hostel submission:', err);
     if (!caretakerStore.error) { // Only set generic error if not already set by store
-        caretakerStore.error = 'An unexpected error occurred during submission.';
+        displayMessage('An unexpected error occurred during submission.', 'error');
     }
   }
 };
@@ -630,7 +775,7 @@ const resetForm = () => {
 const toggleAvailability = async (hostel) => {
   caretakerStore.error = null; // Clear previous errors
   if (!user.value || !user.value.uid) {
-    caretakerStore.error = 'User not authenticated.';
+    displayMessage('User not authenticated.', 'error');
     return;
   }
   try {
@@ -641,29 +786,121 @@ const toggleAvailability = async (hostel) => {
       hostel.universityId,
       hostel.locationId
     );
+    if (!caretakerStore.error) {
+      displayMessage('Hostel availability updated!', 'success');
+    } else {
+      displayMessage(caretakerStore.error, 'error');
+    }
   } catch (err) {
     console.error('Error toggling availability:', err);
     if (!caretakerStore.error) {
-      caretakerStore.error = 'Failed to update hostel availability.';
+      displayMessage('Failed to update hostel availability.', 'error');
     }
   }
 };
 
 /**
- * Initiates the editing process for a hostel.
- * Currently just logs the hostel, but would open a modal/form for editing.
+ * Initiates the editing process for a hostel by opening a modal.
  * @param {Object} hostel - The hostel object to edit.
  */
 const editHostel = (hostel) => {
-    // Implement your edit modal/form logic here
-    // For example, open a modal with the hostel data pre-filled
-    // You would likely pass hostel to a component like <EditHostelModal :hostel="hostel" @updated="refreshHostels" />
-    console.log('Editing hostel:', hostel);
-    alert(`Editing functionality for ${hostel.name} will be implemented here!`);
-    // Example: Trigger an edit modal/form
-    // showEditModal.value = true;
-    // selectedHostelForEdit.value = hostel;
+   console.log('--- EDIT HOSTEL DEBUG ---');
+  console.log('Logged-in User UID:', user.value ? user.value.uid : 'Not logged in');
+  console.log('Hostel to edit:', hostel);
+  console.log('Hostel caretakerUid:', hostel.caretakerUid);
+  console.log('Match check (user UID === hostel caretakerUid):', user.value && user.value.uid === hostel.caretakerUid);
+  console.log('-------------------------');
+  // Populate the reactive editingHostel object with current hostel data
+  // Ensure all fields match the interface and are correctly assigned
+  Object.assign(editingHostel, {
+    id: hostel.id,
+    name: hostel.name,
+    universityId: hostel.universityId,
+    locationId: hostel.locationId,
+    caretakerPhoneNumber: hostel.caretakerPhoneNumber,
+    price: hostel.price, // Use 'price' as per your Hostel interface
+    deposit: hostel.deposit,
+    hostelType: hostel.hostelType,
+    imageUrls: [...hostel.imageUrls], // Clone array to prevent direct mutation
+    isAvailable: hostel.isAvailable,
+    caretakerUid: hostel.caretakerUid // Crucial for permission checks
+  });
+  newImageFilesForEdit.value = []; // Clear any previously selected new image files
+  showEditHostelModal.value = true; // Show the edit modal
 };
+
+/**
+ * Handles the submission of the edit hostel form from the modal.
+ */
+const submitEditHostelForm = async () => {
+  caretakerStore.error = null;
+  showMessage.value = false;
+
+  if (!user.value || !user.value.uid) {
+    displayMessage('User not authenticated for editing.', 'error');
+    return;
+  }
+  if (!editingHostel.name || !editingHostel.caretakerPhoneNumber || editingHostel.price === null || editingHostel.deposit === null || !editingHostel.hostelType) {
+    displayMessage('Please fill in all required fields for editing.', 'error');
+    return;
+  }
+  if (editingHostel.price <= 0 || editingHostel.deposit <= 0) {
+    displayMessage('Rent and deposit must be greater than zero.', 'error');
+    return;
+  }
+
+  try {
+    // --- Image Handling for Edit (Placeholder) ---
+    // This is where you'd implement logic to upload new images,
+    // delete old ones, and update the imageUrls array in editingHostel.imageUrls.
+    // For now, we'll proceed with updating other fields.
+    if (newImageFilesForEdit.value.length > 0) {
+      displayMessage('New image upload for editing is not fully implemented in this example. Images will not be updated.', 'error');
+      // A more complete solution would involve:
+      // 1. Uploading newImageFilesForEdit to Cloudinary.
+      // 2. Getting the new URLs.
+      // 3. Merging/replacing these with editingHostel.imageUrls.
+      // 4. (Backend) Deleting old images from Cloudinary if they are no longer needed.
+    }
+    // --- End Image Handling Placeholder ---
+
+    const dataToUpdate = {
+      name: editingHostel.name,
+      caretakerPhoneNumber: editingHostel.caretakerPhoneNumber,
+      price: editingHostel.price,
+      deposit: editingHostel.deposit,
+      hostelType: editingHostel.hostelType,
+      isAvailable: editingHostel.isAvailable,
+      // If images were handled above, you'd include:
+      // imageUrls: editingHostel.imageUrls,
+    };
+
+    await caretakerStore.updateHostel(
+      user.value.uid,
+      editingHostel.id,
+      editingHostel.universityId,
+      editingHostel.locationId,
+      dataToUpdate
+    );
+
+    if (!caretakerStore.error) {
+      displayMessage('Hostel updated successfully!', 'success');
+      showEditHostelModal.value = false; // Close modal on success
+    } else {
+      displayMessage(caretakerStore.error, 'error');
+    }
+
+  } catch (err) {
+    console.error('Error during hostel update:', err);
+    displayMessage(`Failed to update hostel: ${err.message || 'An unknown error occurred.'}`, 'error');
+  }
+};
+
+const cancelEdit = () => {
+  showEditHostelModal.value = false;
+  newImageFilesForEdit.value = []; // Clear new image files on cancel
+};
+
 
 /**
  * Deletes a hostel after user confirmation.
@@ -672,31 +909,57 @@ const editHostel = (hostel) => {
  * @param {string} hostelId - The ID of the hostel to delete.
  */
 const deleteHostel = async (universityId, locationId, hostelId) => {
-    caretakerStore.error = null; // Clear previous errors
-    if (!user.value || !user.value.uid) {
-        alert('You must be logged in to delete hostels.');
-        return;
-    }
+  caretakerStore.error = null; // Clear previous errors
+  showMessage.value = false; // Clear any existing messages
 
-    // Client-side check for ownership (optional, but good UX before hitting rules)
-    const hostelToDelete = caretakerStore.hostels.find(h => h.id === hostelId);
-    if (!hostelToDelete || user.value.uid !== hostelToDelete.caretakerUid) {
-        alert('You do not own this hostel and cannot delete it.');
-        return;
-    }
+  if (!user.value || !user.value.uid) {
+    displayMessage('You must be logged in to delete hostels.', 'error');
+    return;
+  }
 
-    if (!confirm(`Are you sure you want to delete "${hostelToDelete.name}"? This action cannot be undone.`)) {
-        return;
-    }
+  const hostelToDelete = caretakerStore.hostels.find(h => h.id === hostelId);
+  console.log('--- DELETE HOSTEL DEBUG ---');
+  console.log('Logged-in User UID:', user.value.uid);
+  console.log('Hostel to delete:', hostelToDelete);
+  console.log('Hostel caretakerUid:', hostelToDelete ? hostelToDelete.caretakerUid : 'N/A');
+  console.log('Match check (user UID === hostel caretakerUid):', hostelToDelete && user.value.uid === hostelToDelete.caretakerUid);
+  console.log('---------------------------');
 
-    try {
-        await caretakerStore.deleteHostel(user.value.uid, universityId, locationId, hostelId);
-        // The store should automatically update the hostels list upon successful deletion.
-        alert('Hostel deleted successfully!');
-    } catch (error) {
-        console.error('Error deleting hostel:', error);
-        alert(`Failed to delete hostel: ${error.message || 'An unknown error occurred.'}`);
+  if (!hostelToDelete) {
+    displayMessage('Hostel not found in your list.', 'error');
+    return;
+  }
+
+  // Client-side check for ownership
+  if (user.value.uid !== hostelToDelete.caretakerUid) {
+    displayMessage('You do not own this hostel and cannot delete it.', 'error');
+    return;
+  }
+
+  // Custom confirmation message (replace with a modal for better UX)
+  // IMPORTANT: window.confirm will not show in Canvas iframe. Replace with custom modal.
+  const confirmed = window.confirm(`Are you sure you want to delete "${hostelToDelete.name}"? This action cannot be undone.`);
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+    await caretakerStore.deleteHostel(
+      user.value.uid,
+      universityId,
+      locationId,
+      hostelId,
+      hostelToDelete.imageUrls // Pass image URLs for potential Cloudinary deletion (though handled server-side)
+    );
+    if (!caretakerStore.error) {
+      displayMessage('Hostel deleted successfully!', 'success');
+    } else {
+      displayMessage(caretakerStore.error, 'error');
     }
+  } catch (error) {
+    console.error('Error deleting hostel:', error);
+    displayMessage(`Failed to delete hostel: ${error.message || 'An unknown error occurred.'}`, 'error');
+  }
 };
 
 
@@ -723,13 +986,14 @@ onMounted(async () => {
     await universityStore.fetchUniversities();
     await universityStore.fetchAllLocations(); // Fetch all locations for display
 
-    await caretakerStore.setupCaretakerProfile(user.value.uid, user.value.email, user.value.name || user.value.displayName || '', user.value.phoneNumber || '');
+    await caretakerStore.setupCaretakerProfile(user.value.uid, user.value.email, user.value.displayName || '', user.value.phoneNumber || '');
     await caretakerStore.fetchCaretakerHostels(user.value.uid);
   }
 });
 </script>
 
-<style>
+
+<style >
 /* Add a subtle fade-in animation for overall content */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }

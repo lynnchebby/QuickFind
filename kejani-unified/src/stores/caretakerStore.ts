@@ -10,7 +10,8 @@ import {
   addDoc,
   getDoc,
   deleteDoc,
-  Timestamp
+  Timestamp,
+  // Removed 'where' import as it's not used for this specific duplicate check
 } from 'firebase/firestore';
 import { db } from '../firebase/config'; // <--- Ensure this path is correct for your Firebase config
 
@@ -26,6 +27,7 @@ interface Hostel {
   imageUrls: string[]; // Array of image URLs (now Cloudinary URLs)
   caretakerPhoneNumber: string; // Contact for *this specific* hostel listing
   isAvailable: boolean;
+  caretakerUid: string; // Explicitly add caretakerUid to the interface
   createdAt?: Date; // Timestamp for creation
 }
 
@@ -37,10 +39,10 @@ interface CaretakerProfile {
   createdAt?: Date;
 }
 
-// --- Cloudinary Configuration (ADD THESE LINES) ---
-// IMPORTANT: Replace with your actual Cloudinary Cloud Name and Unsigned Upload Preset name
-const CLOUDINARY_CLOUD_NAME = 'dqny92tgm'; // e.g., 'dupaa123'
-const CLOUDINARY_UPLOAD_PRESET = 'hostel_images'; // e.g., 'my_unsigned_hostel_upload'
+// --- Cloudinary Configuration---
+//  Cloudinary Cloud Name and Unsigned Upload Preset name
+const CLOUDINARY_CLOUD_NAME = 'dqny92tgm';
+const CLOUDINARY_UPLOAD_PRESET = 'hostel_images';
 // --- END Cloudinary Configuration ---
 
 export const useCaretakerStore = defineStore('caretaker', {
@@ -49,6 +51,7 @@ export const useCaretakerStore = defineStore('caretaker', {
     hostels: [] as Hostel[],
     loading: false,
     error: null as string | null,
+    addHostelSuccess: false as boolean, // Added for clarity in UI feedback
   }),
 
   actions: {
@@ -136,6 +139,26 @@ export const useCaretakerStore = defineStore('caretaker', {
       this.error = null;
 
       try {
+        // --- START: Duplicate Name Check (Improved for case-insensitivity) ---
+        const trimmedHostelName = hostelName.trim();
+        const publicHostelsCollectionRef = collection(db, `Universities/${universityId}/locations/${locationId}/hostels`);
+
+        // Fetch ALL documents in this specific location's hostels subcollection
+        // This ensures we can perform a reliable case-insensitive check client-side.
+        const querySnapshot = await getDocs(publicHostelsCollectionRef);
+
+        const exists = querySnapshot.docs.some(doc =>
+          (doc.data().name || '').toLowerCase() === trimmedHostelName.toLowerCase()
+        );
+
+        if (exists) {
+          this.error = `A home with the name "${trimmedHostelName}" already exists at this location. Please use a different name.`;
+          console.error('Duplicate hostel name detected:', trimmedHostelName);
+          this.loading = false;
+          return; // Stop execution if duplicate
+        }
+        // --- END: Duplicate Name Check ---
+
         const imageUrls: string[] = []; // Array to store all uploaded image URLs (from Cloudinary)
 
         // 1. Upload all images to Cloudinary
@@ -169,7 +192,7 @@ export const useCaretakerStore = defineStore('caretaker', {
         // 2. Add the MAIN hostel document under the caretaker's 'hostels' subcollection
         const caretakerHostelsCollectionRef = collection(db, `caretakers/${caretakerUid}/hostels`);
         const newHostelRef = await addDoc(caretakerHostelsCollectionRef, {
-          name: hostelName,
+          name: trimmedHostelName, // Use trimmed name
           universityId: universityId,
           locationId: locationId,
           caretakerPhoneNumber: caretakerPhoneNumber,
@@ -178,8 +201,11 @@ export const useCaretakerStore = defineStore('caretaker', {
           hostelType: hostelType,
           imageUrls: imageUrls, // Store the Cloudinary URLs
           isAvailable: true,
+          caretakerUid: caretakerUid, // Ensure caretakerUid is stored here
           createdAt: new Date(),
         });
+        console.log('addHostel: Hostel added to caretaker private collection with ID:', newHostelRef.id, 'by UID:', caretakerUid);
+
 
         // 3. Create a lightweight REFERENCE in the University/Location's 'hostels' subcollection
         const universityLocationHostelRef = doc(
@@ -188,20 +214,24 @@ export const useCaretakerStore = defineStore('caretaker', {
           newHostelRef.id
         );
         await setDoc(universityLocationHostelRef, {
-          caretakerUid: caretakerUid,
+          caretakerUid: caretakerUid, // Ensure caretakerUid is stored in the public reference
           hostelDocId: newHostelRef.id,
           primaryImageUrl: imageUrls[0] || '', // Use the first Cloudinary URL as primary
-          name: hostelName,
+          name: trimmedHostelName, // Use trimmed name
           price: rent,
           hostelType: hostelType,
           isAvailable: true,
         });
+        console.log('Public reference for hostel added successfully with ID:', newHostelRef.id, 'and caretakerUid:', caretakerUid);
+
 
         console.log('Hostel added successfully with ID:', newHostelRef.id);
         await this.fetchCaretakerHostels(caretakerUid);
+        this.addHostelSuccess = true; // Set success state
       } catch (error: any) {
         console.error('Error adding hostel: ', error);
         this.error = 'Failed to add hostel: ' + error.message;
+        // Re-throw to allow component to catch if needed
         throw error;
       } finally {
         this.loading = false;
@@ -230,6 +260,7 @@ export const useCaretakerStore = defineStore('caretaker', {
           imageUrls: doc.data().imageUrls || [],
           caretakerPhoneNumber: doc.data().caretakerPhoneNumber,
           isAvailable: doc.data().isAvailable,
+          caretakerUid: doc.data().caretakerUid || caretakerUid, // Ensure caretakerUid is always present
           createdAt: doc.data().createdAt instanceof Timestamp ? doc.data().createdAt.toDate() : new Date(),
         }));
 
@@ -249,7 +280,7 @@ export const useCaretakerStore = defineStore('caretaker', {
     },
 
     /**
-     * Toggles the availability status of a specific hostel. (No change here)
+     * Toggles the availability status of a specific hostel. (No change to core logic)
      */
     async toggleHostelAvailability(
       caretakerUid: string,
@@ -289,7 +320,8 @@ export const useCaretakerStore = defineStore('caretaker', {
     },
 
     /**
-     * Updates an existing hostel's details. (No change to core logic, but now handles Cloudinary URLs)
+     * Updates an existing hostel's details.
+     * Added caretakerUid to the public update to ensure it's always there.
      */
     async updateHostel(caretakerUid: string, hostelId: string, universityId: string, locationId: string, newData: Partial<Hostel>) {
       this.loading = true;
@@ -305,6 +337,8 @@ export const useCaretakerStore = defineStore('caretaker', {
         if (newData.price !== undefined) updatePublicData.price = newData.price;
         if (newData.hostelType !== undefined) updatePublicData.hostelType = newData.hostelType;
         if (newData.isAvailable !== undefined) updatePublicData.isAvailable = newData.isAvailable;
+        // Ensure caretakerUid is always present in the public record on update
+        updatePublicData.caretakerUid = caretakerUid;
 
         if (newData.imageUrls !== undefined) {
           if (newData.imageUrls && newData.imageUrls.length > 0) {
@@ -336,16 +370,11 @@ export const useCaretakerStore = defineStore('caretaker', {
      * IMPORTANT: Image deletion from Cloudinary is complex from the frontend directly without an API Secret.
      * For production, this should ideally be handled via a secure backend/serverless function.
      */
-    async deleteHostel(caretakerUid: string, hostelId: string, universityId: string, locationId: string, imageUrls: string[]) {
+    async deleteHostel(caretakerUid: string, universityId: string, locationId: string, hostelId: string, imageUrls: string[] = []) { // Added default empty array for imageUrls
       this.loading = true;
       this.error = null;
       try {
         // --- CLOUDINARY IMAGE DELETION WARNING ---
-        // Deleting images from Cloudinary securely typically requires a signed request
-        // using your Cloudinary API Secret. Exposing your API Secret in frontend code
-        // is INSECURE. For production, you would generally:
-        // 1. Send a request from your frontend to a backend/serverless function.
-        // 2. The backend securely calls the Cloudinary Admin API to delete images.
         console.warn("Cloudinary image deletion requires secure server-side logic (e.g., via a backend/serverless function). Skipping direct image deletion from frontend for security reasons. Images will remain in Cloudinary unless manually deleted.");
         console.log("Image URLs that would ideally be deleted:", imageUrls);
         // --- END CLOUDINARY IMAGE DELETION WARNING ---
@@ -383,6 +412,7 @@ export const useCaretakerStore = defineStore('caretaker', {
       this.hostels = [];
       this.loading = false;
       this.error = null;
+      this.addHostelSuccess = false;
     }
   },
 });
