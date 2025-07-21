@@ -3,7 +3,7 @@
   <div class="relative overflow-hidden">
     <div class="max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-24">
       <div class="text-center">
-        <h1 class="text-4xl sm:text-6xl font-bold text-gray-800 dark:text-neutral-200">KEJANI</h1>
+        <h1 class="text-4xl sm:text-6xl font-bold text-gray-800 dark:text-neutral-200">QUICK FIND</h1>
 
         <p class="mt-3 text-gray-600 dark:text-neutral-400">
           Get accomodation around universities near you
@@ -132,6 +132,29 @@
             {{ location.name }}
           </a>
         </div>
+        <div class="flex gap-4 mb-6">
+          <button
+            @click="filterVacancy = 'all'"
+            :class="filterVacancy === 'all' ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 border border-blue-600'"
+            class="py-2 px-4 rounded"
+          >
+            All
+          </button>
+          <button
+            @click="filterVacancy = 'vacant'"
+            :class="filterVacancy === 'vacant' ? 'bg-green-600 text-white' : 'bg-white text-green-600 border border-green-600'"
+            class="py-2 px-4 rounded"
+          >
+            Vacant
+          </button>
+          <button
+            @click="filterVacancy = 'non-vacant'"
+            :class="filterVacancy === 'non-vacant' ? 'bg-red-600 text-white' : 'bg-white text-red-600 border border-red-600'"
+            class="py-2 px-4 rounded"
+          >
+            Non-vacant
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -144,64 +167,45 @@
       <!-- Card -->
 
       <div
-        v-for="hostel in hostels"
+        v-for="hostel in filteredHostels"
         :key="hostel.id"
         class="group flex flex-col h-full bg-white border border-gray-200 shadow-sm rounded-xl dark:bg-neutral-900 dark:border-neutral-700 dark:shadow-neutral-700/70"
       >
-        <img
-          aria-haspopup="dialog"
-          aria-expanded="false"
-          aria-controls="hs-full-screen-modal"
-          data-hs-overlay="#hs-full-screen-modal"
-          v-if="hostel.images && hostel.images.length > 0"
-          class="h-60 flex flex-col justify-center items-center bg-blue-600 rounded-t-xl"
-          :src="hostel.images[0]"
-        />
-        <div class="p-4 md:p-6">
-          <div class="grid grid-cols-2">
-            <div>
-              <h3
-                class="text-xl font-semibold text-gray-800 dark:text-neutral-300 dark:hover:text-white"
-              >
-                {{ hostel.name }}
-              </h3>
-            </div>
-            <!-- vacant -->
-            <div class="ml-8">
-              <span
-                :class="
-                  hostel.vacant
-                    ? 'py-1 px-1.5 ml-20 inline-flex items-center gap-x-1 text-xs font-medium bg-teal-100 text-teal-800 rounded-full dark:bg-teal-500/10 dark:text-teal-500'
-                    : 'py-1 px-1.5 inline-flex items-center gap-x-1 text-xs font-medium bg-red-100 text-red-800 rounded-full dark:bg-red-500/10 dark:text-red-500'
-                "
-                class="font-semibold"
-              >
-                {{ hostel.vacant ? 'Vacant' : 'No Vacant' }}
-              </span>
-            </div>
-            <!-- end of vacant -->
+
+        <div class="mb-4">
+          <img
+            v-if="hostel.imageUrls && hostel.imageUrls.length > 0"
+            :src="hostel.imageUrls[0]"
+            alt="Hostel Image"
+            class="w-full h-auto rounded shadow"
+          />
+          <div v-else class="h-60 flex items-center justify-center bg-gray-200 rounded-t-xl">
+            <span class="text-gray-500">No image</span>
           </div>
-
-          <p class="mt-3 text-gray-500 dark:text-neutral-500">
+        </div>  
+        <div class="flex-1 flex flex-col p-5">
+          <h3 class="text-lg font-bold text-gray-800 dark:text-neutral-200 mb-2">{{ hostel.name }}</h3>
+          <p class="text-sm text-gray-500 dark:text-neutral-400 mb-4">
             Self contained apartments with water, wifi and security
-          </p>
+         </p>
+         <div class="mt-auto flex justify-between items-center border-t pt-4">
+            <span class="flex items-center gap-1 text-blue-600 font-semibold">
+              {{ hostel.price }}
+            </span>
+            <span class="flex items-center gap-1 text-gray-700 dark:text-neutral-300">
+            {{ hostel.hostelType }}
+            </span>
+          </div>
+          <span
+            v-if="hostel.isAvailable"
+            class="mt-3 inline-block bg-green-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow"
+          >Vacant</span>
+          <span
+            v-else
+            class="mt-3 inline-block bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow"
+          >Not Vacant</span>
+          </div>
         </div>
-        <div
-          class="mt-auto flex border-t border-gray-200 divide-x divide-gray-200 dark:border-neutral-700 dark:divide-neutral-700"
-        >
-          <a
-            class="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-es-xl bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
-          >
-            {{ hostel.price }}
-          </a>
-
-          <button
-            class="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-ee-xl bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
-          >
-            {{ hostel.houseType }}
-          </button>
-        </div>
-      </div>
       <!-- modal -->
       <Portal to="body">
         <div
@@ -457,6 +461,9 @@
       </div>
     </div>
   </div>
+  <button @click="logout" class="px-4 py-2 bg-red-500 text-white rounded">
+    Logout
+  </button>
 </template>
 
 <script setup>
@@ -466,6 +473,7 @@ import {
   fetchLocationsByUniversity,
   fetchHostelsByLocation
 } from '@/stores/fireStoreService'
+import { computed } from 'vue'
 
 const universities = ref([])
 const filteredUniversities = ref([])
@@ -475,6 +483,8 @@ const selectedUniversityName = ref('')
 const selectedLocationName = ref('')
 const searchQuery = ref('')
 const selectedUniversityId = ref('')
+const CLOUDINARY_CLOUD_NAME = 'dqny92tgm';
+const CLOUDINARY_UPLOAD_PRESET = 'hostel_images';
 
 // Load universities on mount
 onMounted(async () => {
@@ -495,6 +505,7 @@ const selectLocation = async (locationId) => {
   const location = locations.value.find((l) => l.id === locationId)
   selectedLocationName.value = location.name
   hostels.value = await fetchHostelsByLocation(selectedUniversityId.value, locationId)
+  console.log('Fetched hostels:', hostels.value)
 }
 
 // Function to filter universities based on search input
@@ -506,6 +517,25 @@ const filterUniversities = () => {
     filteredUniversities.value = universities.value.filter((university) =>
       university.name.toLowerCase().includes(query)
     )
+  }
+}
+
+const filterVacancy = ref('all')
+
+const filteredHostels = computed(() => {
+  if (filterVacancy.value === 'all') return hostels.value
+  if (filterVacancy.value === 'vacant') return hostels.value.filter(h => h.isAvailable)
+  if (filterVacancy.value === 'non-vacant') return hostels.value.filter(h => !h.isAvailable)
+  return hostels.value
+})
+// Logout function
+const logout = async () => {
+  const auth = getAuth()
+  try {
+    await signOut(auth)
+    router.push('/login')
+  } catch (error) {
+    console.error('Logout error:', error)
   }
 }
 </script>
