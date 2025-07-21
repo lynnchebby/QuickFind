@@ -4,7 +4,7 @@ import SignUp from '@/views/auth/SignUp.vue'
 import ResetPassword from '@/views/auth/ResetPassword.vue'
 import AdminDashboard from '@/views/admin/AdminDashboard.vue'
 import CaretakerDashboard from '@/views/caretaker/CaretakerDashboard.vue'
-import StudentDashboard from '@/views/student/Console/kejani/kejani2view.vue'
+import StudentDashboard from '@/views/student/console/kejani/kejani2view.vue'
 
 const routes = [
   { path: '/', name: 'Login', component: SignIn },
