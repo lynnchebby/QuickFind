@@ -170,6 +170,8 @@ export const useUniversityStore = defineStore('university', {
     // Add a new hostel under a specific university and location
     async addNewHostel(universityId: string, locationId: string, hostelId: string, hostelData: any) { // Changed hostelName to hostelId to match doc() usage
       try {
+        console.log('addNewHostel: Adding hostel with ID:', hostelId, 'to path:', `Universities/${universityId}/locations/${locationId}/hostels`);
+        console.log('addNewHostel: Hostel Data:', hostelData);
         const hostelRef = doc(db, `Universities/${universityId}/locations/${locationId}/hostels`, hostelId) // Use hostelId for doc name
         await setDoc(hostelRef, hostelData)
         console.log(`Hostel "${hostelData.name}" added under university "${universityId}" and location "${locationId}"`)
@@ -182,10 +184,12 @@ export const useUniversityStore = defineStore('university', {
     // --- NEW: Update Hostel (Home) ---
     async updateHostel(universityId: string, locationId: string, hostelId: string, newData: any) { // newData can include address, rooms etc.
       try {
-        console.log(`Attempting to update hostel ID: ${hostelId} under university ${universityId}, location ${locationId} with data:`, newData);
+        console.log('--- ADMIN UPDATE HOSTEL DEBUG ---');
+        console.log('Path:', `Universities/${universityId}/locations/${locationId}/hostels/${hostelId}`);
+        console.log('New Data:', newData);
         const hostelRef = doc(db, `Universities/${universityId}/locations/${locationId}/hostels`, hostelId);
         await updateDoc(hostelRef, newData);
-        console.log('Hostel updated successfully!');
+        console.log('Hostel updated successfully by Admin!');
       } catch (error) {
         console.error('Error updating hostel:', error);
         throw error;
@@ -195,10 +199,11 @@ export const useUniversityStore = defineStore('university', {
     // --- NEW: Delete Hostel (Home) ---
     async deleteHostel(universityId: string, locationId: string, hostelId: string) {
       try {
-        console.log(`Attempting to delete hostel ID: ${hostelId} under university ${universityId}, location ${locationId}`);
+        console.log('--- ADMIN DELETE HOSTEL DEBUG ---');
+        console.log('Path:', `Universities/${universityId}/locations/${locationId}/hostels/${hostelId}`);
         const hostelRef = doc(db, `Universities/${universityId}/locations/${locationId}/hostels`, hostelId);
         await deleteDoc(hostelRef);
-        console.log('Hostel deleted successfully!');
+        console.log('Hostel deleted successfully by Admin!');
       } catch (error) {
         console.error('Error deleting hostel:', error);
         throw error;
