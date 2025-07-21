@@ -172,18 +172,17 @@
         class="group flex flex-col h-full bg-white border border-gray-200 shadow-sm rounded-xl dark:bg-neutral-900 dark:border-neutral-700 dark:shadow-neutral-700/70"
       >
 
-        <div v-if="hostel.imageUrls && hostel.imageUrls.length > 0 || (hostel.images && hostel.images.length > 0)" class="flex overflow-x-auto space-x-2 h-60 bg-blue-600 rounded-t-xl p-2">
+        <div class="mb-4">
           <img
-            v-for="(img, idx) in hostel.imageUrls"
-            :key="idx"
-            :src="img"
-            class="h-56 w-auto rounded-lg object-cover"
-            alt="Hostel image"
+            v-if="hostel.imageUrls && hostel.imageUrls.length > 0"
+            :src="hostel.imageUrls[0]"
+            alt="Hostel Image"
+            class="w-full h-auto rounded shadow"
           />
-        </div>
-        <div v-else class="h-60 flex items-center justify-center bg-gray-200 rounded-t-xl">
-          <span class="text-gray-500">No image</span>
-        </div>
+          <div v-else class="h-60 flex items-center justify-center bg-gray-200 rounded-t-xl">
+            <span class="text-gray-500">No image</span>
+          </div>
+        </div>  
         <div class="flex-1 flex flex-col p-5">
           <h3 class="text-lg font-bold text-gray-800 dark:text-neutral-200 mb-2">{{ hostel.name }}</h3>
           <p class="text-sm text-gray-500 dark:text-neutral-400 mb-4">
@@ -197,12 +196,6 @@
             {{ hostel.hostelType }}
             </span>
           </div>
-          <div class="mt-2 flex items-center gap-2 text-sm text-gray-600 dark:text-neutral-400">
-            <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path d="M22 16.92V19a2 2 0 0 1-2.18 2A19.72 19.72 0 0 1 3 5.18 2 2 0 0 1 5 3h2.09a2 2 0 0 1 2 1.72c.13 1.05.37 2.07.72 3.06a2 2 0 0 1-.45 2.11l-.27.27a16 16 0 0 0 6.29 6.29l.27-.27a2 2 0 0 1 2.11-.45c.99.35 2.01.59 3.06.72A2 2 0 0 1 22 16.92z"/>
-            </svg>
-            <span>{{ hostel.caretakerPhoneNumber }}</span>
-          </div>
           <span
             v-if="hostel.isAvailable"
             class="mt-3 inline-block bg-green-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow"
@@ -210,7 +203,7 @@
           <span
             v-else
             class="mt-3 inline-block bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow"
-          >No Vacant</span>
+          >Not Vacant</span>
           </div>
         </div>
       <!-- modal -->
@@ -490,6 +483,8 @@ const selectedUniversityName = ref('')
 const selectedLocationName = ref('')
 const searchQuery = ref('')
 const selectedUniversityId = ref('')
+const CLOUDINARY_CLOUD_NAME = 'dqny92tgm';
+const CLOUDINARY_UPLOAD_PRESET = 'hostel_images';
 
 // Load universities on mount
 onMounted(async () => {
