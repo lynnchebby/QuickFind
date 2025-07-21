@@ -3,7 +3,7 @@
   <div class="relative overflow-hidden">
     <div class="max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-24">
       <div class="text-center">
-        <h1 class="text-4xl sm:text-6xl font-bold text-gray-800 dark:text-neutral-200">KEJANI</h1>
+        <h1 class="text-4xl sm:text-6xl font-bold text-gray-800 dark:text-neutral-200">QUICK FIND</h1>
 
         <p class="mt-3 text-gray-600 dark:text-neutral-400">
           Get accomodation around universities near you
@@ -457,6 +457,9 @@
       </div>
     </div>
   </div>
+  <button @click="logout" class="px-4 py-2 bg-red-500 text-white rounded">
+    Logout
+  </button>
 </template>
 
 <script setup>
@@ -506,6 +509,16 @@ const filterUniversities = () => {
     filteredUniversities.value = universities.value.filter((university) =>
       university.name.toLowerCase().includes(query)
     )
+  }
+}
+// Logout function
+const logout = async () => {
+  const auth = getAuth()
+  try {
+    await signOut(auth)
+    router.push('/login')
+  } catch (error) {
+    console.error('Logout error:', error)
   }
 }
 </script>
