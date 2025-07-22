@@ -4,7 +4,7 @@ import SignUp from '@/views/auth/SignUp.vue'
 import ResetPassword from '@/views/auth/ResetPassword.vue'
 import AdminDashboard from '@/views/admin/AdminDashboard.vue'
 import CaretakerDashboard from '@/views/caretaker/CaretakerDashboard.vue'
-import StudentDashboard from '@/views/student/console/kejani/kejani2view.vue'
+import StudentDashboard from '@/views/student/console/kejani/kejani2View.vue'
 
 const routes = [
   { path: '/', name: 'Login', component: SignIn },
@@ -14,7 +14,8 @@ const routes = [
   { path: '/reset-password', name: 'ResetPassword', component: ResetPassword },
   { path: '/admin', name: 'Admin', component: AdminDashboard },
   { path: '/caretaker', name: 'Caretaker', component: CaretakerDashboard },
-  { path: '/student', name: 'Student', component: StudentDashboard }
+  { path: '/student', name: 'Student', component: StudentDashboard },
+  { path: '/console', name: 'Console', component: SignIn }
 ]
 
 const router = createRouter({
