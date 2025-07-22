@@ -460,52 +460,188 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import {
-  fetchUniversities,
-  fetchLocationsByUniversity,
-  fetchHostelsByLocation
-} from '@/stores/fireStoreService'
+import { ref, computed, onMounted, watch } from 'vue';
+import { useUniversityStore } from 'stores/'; // Adjust path as needed
+import { collection, getDocs, query } from 'firebase/firestore'; // Import Firestore functions
+import { db } from '@/firebase/config'; // Adjust Firebase config path as needed
 
-const universities = ref([])
-const filteredUniversities = ref([])
-const locations = ref([])
-const hostels = ref([])
-const selectedUniversityName = ref('')
-const selectedLocationName = ref('')
-const searchQuery = ref('')
-const selectedUniversityId = ref('')
+// Import ImageViewerModal if you have this component
+// Ensure this path is correct for your project
+import ImageViewerModal from '@/components/ImageViewerModal.vue';
 
-// Load universities on mount
-onMounted(async () => {
-  universities.value = await fetchUniversities()
-})
+// --- Cloudinary Configuration (Only Cloud Name is strictly needed for display) ---
+// Your Cloudinary Cloud Name
+const CLOUDINARY_CLOUD_NAME = 'dqny92tgm';
+// CLOUDINARY_UPLOAD_PRESET is not needed for displaying images
+// --- END Cloudinary Configuration ---
 
-// Function to handle selecting a university
-const selectUniversity = async (universityId) => {
-  const university = universities.value.find((u) => u.id === universityId)
-  selectedUniversityName.value = university.name
-  selectedUniversityId.value = universityId
-  locations.value = await fetchLocationsByUniversity(universityId)
-  hostels.value = [] // Reset hostels list
+const universityStore = useUniversityStore();
+
+// Reactive state for UI elements
+const selectedUniversityId = ref('');
+const selectedLocationId = ref('');
+const showAvailableOnly = ref(true); // Default to showing only available homes
+
+// Data states
+const hostels = ref([]); // Raw hostels fetched from Firestore
+const locations = ref([]); // Locations for the selected university
+const loading = ref(true); // Global loading indicator
+const showMessage = ref(false); // For custom toast messages
+const messageText = ref('');
+const messageType = ref('success'); // 'success' or 'error'
+
+// Image Viewer Modal state
+const showImageViewer = ref(false);
+const currentImageUrl = ref('');
+
+// --- Computed Properties ---
+
+// Filtered hostels based on selected location and availability toggle
+const filteredHostels = computed(() => {
+  let filtered = hostels.value;
+
+  if (showAvailableOnly.value) {
+    filtered = filtered.filter(hostel => hostel.isAvailable);
+  }
+  return filtered;
+});
+
+// Helper functions for displaying university/location names
+const getUniversityName = (id) => {
+  const university = universityStore.universities.find((uni) => uni.id === id);
+  return university ? university.name : 'Unknown University';
+};
+
+const getLocationName = (id) => {
+  const location = universityStore.allLocations.find((loc) => loc.id === id);
+  return location ? location.name : 'Unknown Location';
+};
+
+// --- Message Display Function ---
+const displayMessage = (text, type = 'success') => {
+  messageText.value = text;
+  messageType.value = type;
+  showMessage.value = true;
+  setTimeout(() => {
+    showMessage.value = false;
+    messageText.value = '';
+  }, 3000); // Message disappears after 3 seconds
+};
+
+// --- Data Fetching Functions ---
+
+/**
+ * Fetches locations for the currently selected university.
+ * This is triggered by university selection or initial load if a university is pre-selected.
+ */
+async function fetchLocationsForSelectedUniversity() {
+  locations.value = []; // Clear previous locations
+  selectedLocationId.value = ''; // Reset selected location
+
+  if (selectedUniversityId.value) {
+    loading.value = true;
+    try {
+      // Use universityStore's getLocations which fetches subcollection
+      const fetchedLocations = await universityStore.getLocations(selectedUniversityId.value);
+      locations.value = fetchedLocations;
+      console.log('Student Page: Fetched locations for selected university:', fetchedLocations);
+    } catch (err) {
+      console.error('Student Page: Error fetching locations:', err);
+      displayMessage(`Failed to load locations: ${err.message}`, 'error');
+    } finally {
+      loading.value = false;
+    }
+  }
+  // Always trigger hostel fetch after location updates (even if no location is selected yet)
+  fetchHostelsForSelectedLocation();
 }
 
-// Function to handle selecting a location
-const selectLocation = async (locationId) => {
-  const location = locations.value.find((l) => l.id === locationId)
-  selectedLocationName.value = location.name
-  hostels.value = await fetchHostelsByLocation(selectedUniversityId.value, locationId)
-}
-
-// Function to filter universities based on search input
-const filterUniversities = () => {
-  if (searchQuery.value === '') {
-    filteredUniversities.value = universities.value // Reset to all universities if search is empty
-  } else {
-    const query = searchQuery.value.toLowerCase()
-    filteredUniversities.value = universities.value.filter((university) =>
-      university.name.toLowerCase().includes(query)
-    )
+/**
+ * Fetches hostels for the currently selected university and location.
+ * This is triggered by location selection or after university selection.
+ */
+async function fetchHostelsForSelectedLocation() {
+  hostels.value = []; // Clear previous hostels
+  if (selectedUniversityId.value && selectedLocationId.value) {
+    loading.value = true;
+    try {
+      // Use universityStore's getHostels which fetches public listings
+      const fetchedHostels = await universityStore.getHostels(selectedUniversityId.value, selectedLocationId.value);
+      hostels.value = fetchedHostels;
+      console.log('Student Page: Fetched hostels for selected location:', fetchedHostels);
+    } catch (err) {
+      console.error('Student Page: Error fetching hostels:', err);
+      displayMessage(`Failed to load homes: ${err.message}`, 'error');
+    } finally {
+      loading.value = false;
+    }
   }
 }
+
+// --- Event Handlers for Selects ---
+const onUniversitySelect = () => {
+  // Watcher on selectedUniversityId will trigger fetchLocationsForSelectedUniversity
+  // and subsequently fetchHostelsForSelectedLocation.
+};
+
+const onLocationSelect = () => {
+  // Watcher on selectedLocationId will trigger fetchHostelsForSelectedLocation.
+};
+
+// --- Image Viewer Functions ---
+const openImageViewer = (imageUrl) => {
+  currentImageUrl.value = imageUrl;
+  showImageViewer.value = true;
+};
+
+// --- Contact Caretaker Function ---
+const contactCaretaker = (phoneNumber) => {
+  if (phoneNumber) {
+    // For web, this opens a dialer or prompts to copy
+    window.open(`tel:${phoneNumber}`);
+    displayMessage(`Contacting caretaker at: ${phoneNumber}`, 'success');
+  } else {
+    displayMessage("Caretaker phone number not available.", 'error');
+  }
+};
+
+// --- Lifecycle Hook ---
+onMounted(async () => {
+  loading.value = true;
+  try {
+    // Fetch all universities on mount for the first dropdown
+    await universityStore.fetchUniversities();
+    // Also fetch all locations globally for the helper function (getLocationName)
+    await universityStore.fetchAllLocations();
+
+    // No initial fetch of hostels here, as it will be triggered by
+    // user selection via the watchers on selectedUniversityId and selectedLocationId.
+    // If you want to show all available homes initially without selection,
+    // you would need a different fetch logic that iterates all universities/locations.
+  } catch (err) {
+    console.error('Student Page: Initial data fetch error:', err);
+    displayMessage(`Failed to load initial data: ${err.message}`, 'error');
+  } finally {
+    loading.value = false;
+  }
+});
+
+// --- Watchers ---
+// Watch for changes in selectedUniversityId to update locations and then trigger hostel fetch
+watch(selectedUniversityId, (newVal, oldVal) => {
+  if (newVal !== oldVal) { // Only run if the university actually changed
+    fetchLocationsForSelectedUniversity();
+  }
+});
+
+// Watch for changes in selectedLocationId to update hostels
+watch(selectedLocationId, (newVal, oldVal) => {
+  if (newVal !== oldVal) { // Only run if the location actually changed
+    fetchHostelsForSelectedLocation();
+  }
+});
+
+// No watcher needed for showAvailableOnly, as `filteredHostels` computed property
+// automatically reacts to changes in `showAvailableOnly.value`.
 </script>
+

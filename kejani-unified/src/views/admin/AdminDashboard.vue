@@ -1,5 +1,6 @@
 <template>
   <div class="min-h-screen bg-white text-gray-800 dark:text-neutral-200 overflow-hidden relative">
+    <!-- Decorative SVG Background Elements -->
     <div class="absolute top-0 end-0 -translate-y-1/4 translate-x-1/4 z-0 opacity-30 animate-float-1 hidden md:block">
       <svg class="w-64 h-auto text-blue-200 dark:text-blue-800" fill="none" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
         <circle cx="100" cy="100" r="80" stroke="currentColor" stroke-width="5" stroke-dasharray="10 5" />
@@ -14,11 +15,12 @@
       </svg>
     </div>
     <div class="absolute top-1/4 left-1/2 -translate-x-1/2 z-0 opacity-20 animate-float-3 hidden md:block">
-        <svg class="w-48 h-auto text-green-200 dark:text-green-800" fill="none" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
-          <polygon points="75,10 140,140 10,140" stroke="currentColor" stroke-width="3" stroke-linejoin="round" />
-          <line x1="75" y1="10" x2="75" y2="140" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-        </svg>
+      <svg class="w-48 h-auto text-green-200 dark:text-green-800" fill="none" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="75,10 140,140 10,140" stroke="currentColor" stroke-width="3" stroke-linejoin="round" />
+        <line x1="75" y1="10" x2="75" y2="140" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </svg>
     </div>
+
     <div class="max-w-[85rem] px-4 py-6 sm:px-6 lg:px-8 mx-auto relative z-10">
       <div class="mx-auto max-w-3xl mb-8 lg:mb-12 text-center pt-4 md:pt-6">
         <h1 class="text-6xl sm:text-8xl font-extrabold text-blue-600 dark:text-blue-400 drop-shadow-lg animate-fade-in-down">
@@ -29,6 +31,7 @@
         </p>
       </div>
 
+      <!-- Global Loading and Error Messages -->
       <div v-if="isLoading" class="text-center text-blue-600 dark:text-blue-400 my-8 py-4 px-6 bg-blue-50 dark:bg-neutral-900 rounded-lg shadow-md border border-blue-200 dark:border-blue-700">
         <div class="flex items-center justify-center space-x-2">
           <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -38,8 +41,13 @@
           <p>Loading data...</p>
         </div>
       </div>
-      <div v-if="error" class="text-center bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 my-8 py-4 px-6 rounded-lg shadow-md border border-red-200 dark:border-red-700">
-        Error: {{ error }}
+
+      <!-- Unified Message Display -->
+      <div v-if="showMessage" :class="{
+        'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-700': messageType === 'success',
+        'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-700': messageType === 'error'
+      }" class="text-center my-8 py-4 px-6 rounded-lg shadow-md border">
+        {{ messageText }}
       </div>
 
       <div class="bg-blue-50 dark:bg-neutral-900 p-6 sm:p-8 rounded-xl shadow-lg border border-blue-100 dark:border-neutral-800">
@@ -57,6 +65,7 @@
 
         <hr class="my-8 border-gray-200 dark:border-neutral-700" />
 
+        <!-- Manage Universities Section -->
         <div class="bg-white rounded-xl shadow-lg dark:bg-neutral-900 p-7 sm:p-10 border border-gray-200 dark:border-neutral-800 mb-8 animate-fade-in-down">
           <div class="flex flex-col sm:flex-row justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-gray-800 dark:text-neutral-200 mb-4 sm:mb-0">Manage Universities</h2>
@@ -66,7 +75,7 @@
                 'bg-blue-600 text-white shadow-md': showUniversityView,
                 'bg-white dark:bg-neutral-800 text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-700': !showUniversityView
               }"
-              class="py-2 px-6 rounded-full font-medium transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900"
+              class="py-2 px-6 rounded-full font-medium transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 w-full sm:w-auto"
             >
               {{ showUniversityView ? 'Hide Universities' : 'View Universities' }}
             </button>
@@ -90,15 +99,12 @@
                   {{ university.name }}
                 </option>
               </select>
+              <!-- Changed @click to openAddUniversityModal -->
               <button
-                @click="showAddUniversityInput = !showAddUniversityInput"
-                :class="{
-                  'bg-blue-600 text-white shadow-md': showAddUniversityInput,
-                  'bg-white dark:bg-neutral-800 text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-700': !showAddUniversityInput
-                }"
-                class="py-2 px-6 rounded-full font-medium transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 w-full sm:w-auto"
+                @click="openAddUniversityModal"
+                class="py-2 px-6 rounded-full font-medium transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 w-full sm:w-auto bg-blue-600 text-white shadow-md"
               >
-                {{ showAddUniversityInput ? 'Cancel Add' : 'Add New' }}
+                Add New
               </button>
             </div>
 
@@ -108,12 +114,14 @@
                 <li v-for="uni in universityStore.universities" :key="uni.id" class="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-gray-50 dark:bg-neutral-800 p-3 rounded-md shadow-sm border border-gray-200 dark:border-neutral-700">
                   <span class="text-gray-800 dark:text-neutral-300 font-medium mb-2 sm:mb-0">{{ uni.name }}</span>
                   <div class="flex space-x-2">
-                    <button @click="editUniversity(uni.id, uni.name)" class="py-1.5 px-3 inline-flex items-center justify-center gap-x-1 text-xs font-semibold rounded-md border border-transparent bg-blue-600 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 transition-all duration-200" title="Edit University">
+                    <!-- Changed @click to pass the whole object -->
+                    <button @click="editUniversity(uni)" class="py-1.5 px-3 inline-flex items-center justify-center gap-x-1 text-xs font-semibold rounded-md border border-transparent bg-blue-600 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 transition-all duration-200" title="Edit University">
                       <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zm-3.646 3.646L6.5 13.086V16h2.914l6.364-6.364-2.828-2.828z" />
                       </svg>
                       Edit
                     </button>
+                    <!-- Changed @click to use confirmAction -->
                     <button @click="deleteUniversity(uni.id, uni.name)" class="py-1.5 px-3 inline-flex items-center justify-center gap-x-1 text-xs font-semibold rounded-md border border-transparent bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 transition-all duration-200" title="Delete University">
                       <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1zm1 3a1 1 0 100 2h4a1 1 0 100-2H8z" clip-rule="evenodd" />
@@ -125,28 +133,12 @@
                 <li v-if="universityStore.universities.length === 0" class="text-gray-500 dark:text-neutral-500 p-3 bg-gray-50 dark:bg-neutral-800 rounded-md border border-gray-200 dark:border-neutral-700">No universities found.</li>
               </ul>
             </div>
-
-            <div v-if="showAddUniversityInput" class="mt-8 p-6 border border-gray-300 rounded-lg bg-gray-50 dark:bg-neutral-800 shadow-md">
-              <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-neutral-200">Add New University</h3>
-              <input
-                type="text"
-                v-model="newUniversityName"
-                placeholder="New University Name"
-                class="py-2.5 px-4 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300 focus:ring-offset-white dark:focus:ring-offset-neutral-900 mb-4"
-              />
-              <button @click="submitNewUniversity" class="py-2.5 px-6 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-full border border-transparent bg-blue-600 text-white shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 disabled:opacity-50 disabled:pointer-events-none transition-all duration-200 w-full">
-                Add University
-              </button>
-              <p v-if="duplicateError" class="text-red-600 dark:text-red-400 text-sm mt-3">
-                University with this name already exists.
-              </p>
-              <p v-if="successMessage" class="text-green-600 dark:text-green-400 text-sm mt-3">{{ successMessage }}</p>
-            </div>
           </div>
         </div>
 
         <hr class="my-8 border-gray-200 dark:border-neutral-700" />
 
+        <!-- Manage Locations Section -->
         <div class="bg-white rounded-xl shadow-lg dark:bg-neutral-900 p-7 sm:p-10 border border-gray-200 dark:border-neutral-800 mb-8 animate-fade-in-down">
           <div class="flex flex-col sm:flex-row justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-gray-800 dark:text-neutral-200 mb-4 sm:mb-0">Manage Locations</h2>
@@ -181,30 +173,29 @@
                   {{ loc.name }}
                 </option>
               </select>
+              <!-- Changed @click to openAddLocationModal -->
               <button
-                @click="showAddLocationInput = !showAddLocationInput"
-                :class="{
-                  'bg-blue-600 text-white shadow-md': showAddLocationInput,
-                  'bg-white dark:bg-neutral-800 text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-700': !showAddLocationInput
-                }"
-                class="py-2 px-6 rounded-full font-medium transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 w-full sm:w-auto"
+                @click="openAddLocationModal"
+                class="py-2 px-6 rounded-full font-medium transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 w-full sm:w-auto bg-blue-600 text-white shadow-md"
               >
-                {{ showAddLocationInput ? 'Cancel Add' : 'Add New' }}
+                Add New
               </button>
             </div>
 
             <div class="mt-6">
               <h3 class="text-xl font-medium text-gray-800 dark:text-neutral-200 mb-4">Locations for {{ getUniversityName(selectedUniversityId) }}:</h3>
               <ul class="space-y-3">
-                <li v-for="loc in locations" :key="loc.id" class="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-gray-50 dark:bg-neutral-800 p-3 rounded-md shadow-sm border border-gray-200 dark:border-neutral-700">
+                <li v-for="loc in locations" :key="loc.id" class="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-gray-50 dark:bg-neutral-800 p-3 rounded-md shadow-sm border border-gray-200 dark:border-border-neutral-700">
                   <span class="text-gray-800 dark:text-neutral-300 font-medium mb-2 sm:mb-0">{{ loc.name }}</span>
                   <div class="flex space-x-2">
-                    <button @click="editLocation(loc.id, loc.name)" class="py-1.5 px-3 inline-flex items-center justify-center gap-x-1 text-xs font-semibold rounded-md border border-transparent bg-blue-600 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 transition-all duration-200" title="Edit Location">
+                    <!-- Changed @click to pass the whole object -->
+                    <button @click="editLocation(loc)" class="py-1.5 px-3 inline-flex items-center justify-center gap-x-1 text-xs font-semibold rounded-md border border-transparent bg-blue-600 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 transition-all duration-200" title="Edit Location">
                       <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zm-3.646 3.646L6.5 13.086V16h2.914l6.364-6.364-2.828-2.828z" />
                       </svg>
                       Edit
                     </button>
+                    <!-- Changed @click to use confirmAction -->
                     <button @click="deleteLocation(loc.id, loc.name)" class="py-1.5 px-3 inline-flex items-center justify-center gap-x-1 text-xs font-semibold rounded-md border border-transparent bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 transition-all duration-200" title="Delete Location">
                       <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1zm1 3a1 1 0 100 2h4a1 1 0 100-2H8z" clip-rule="evenodd" />
@@ -216,28 +207,12 @@
                 <li v-if="locations.length === 0" class="text-gray-500 dark:text-neutral-500 p-3 bg-gray-50 dark:bg-neutral-800 rounded-md border border-gray-200 dark:border-neutral-700">No locations found for this university.</li>
               </ul>
             </div>
-
-            <div v-if="showAddLocationInput" class="mt-8 p-6 border border-gray-300 rounded-lg bg-gray-50 dark:bg-neutral-800 shadow-md">
-              <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-neutral-200">Add New Location for {{ getUniversityName(selectedUniversityId) }}</h3>
-              <input
-                type="text"
-                v-model="newLocationName"
-                placeholder="New Location Name"
-                class="py-2.5 px-4 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300 focus:ring-offset-white dark:focus:ring-offset-neutral-900 mb-4"
-              />
-              <button @click="submitNewLocation" class="py-2.5 px-6 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-full border border-transparent bg-blue-600 text-white shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 disabled:opacity-50 disabled:pointer-events-none transition-all duration-200 w-full">
-                Add Location
-              </button>
-              <p v-if="duplicateLocationError" class="text-red-600 dark:text-red-400 text-sm mt-3">
-                Location with this name already exists or fields are empty.
-              </p>
-              <p v-if="locationSuccessMessage" class="text-green-600 dark:text-green-400 text-sm mt-3">{{ locationSuccessMessage }}</p>
-            </div>
           </div>
         </div>
 
         <hr class="my-8 border-gray-200 dark:border-neutral-700" />
 
+        <!-- Manage Homes Section -->
         <div class="bg-white rounded-xl shadow-lg dark:bg-neutral-900 p-7 sm:p-10 border border-gray-200 dark:border-neutral-800 mb-8 animate-fade-in-down">
           <div class="flex flex-col sm:flex-row justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-gray-800 dark:text-neutral-200 mb-4 sm:mb-0">Manage Homes</h2>
@@ -272,15 +247,12 @@
                   {{ home.name || 'Unnamed Home' }}
                 </option>
               </select>
+              <!-- Changed @click to openAddHomeModal -->
               <button
-                @click="showAddNewHomeInput = !showAddNewHomeInput"
-                :class="{
-                  'bg-blue-600 text-white shadow-md': showAddNewHomeInput,
-                  'bg-white dark:bg-neutral-800 text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-neutral-700': !showAddNewHomeInput
-                }"
-                class="py-2 px-6 rounded-full font-medium transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 w-full sm:w-auto"
+                @click="openAddHomeModal"
+                class="py-2 px-6 rounded-full font-medium transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 w-full sm:w-auto bg-blue-600 text-white shadow-md"
               >
-                {{ showAddNewHomeInput ? 'Cancel Add' : 'Add New' }}
+                Add New
               </button>
             </div>
 
@@ -290,12 +262,14 @@
                 <li v-for="home in homes" :key="home.id" class="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-gray-50 dark:bg-neutral-800 p-3 rounded-md shadow-sm border border-gray-200 dark:border-neutral-700">
                   <span class="text-gray-800 dark:text-neutral-300 font-medium mb-2 sm:mb-0">{{ home.name || 'Unnamed Home' }}</span>
                   <div class="flex space-x-2">
-                    <button @click="editHome(home.id, home.name)" class="py-1.5 px-3 inline-flex items-center justify-center gap-x-1 text-xs font-semibold rounded-md border border-transparent bg-blue-600 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 transition-all duration-200" title="Edit Home">
+                    <!-- Changed @click to pass the whole object -->
+                    <button @click="editHome(home)" class="py-1.5 px-3 inline-flex items-center justify-center gap-x-1 text-xs font-semibold rounded-md border border-transparent bg-blue-600 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 transition-all duration-200" title="Edit Home">
                       <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zm-3.646 3.646L6.5 13.086V16h2.914l6.364-6.364-2.828-2.828z" />
                       </svg>
                       Edit
                     </button>
+                    <!-- Changed @click to use confirmAction -->
                     <button @click="deleteHome(home.id, home.name)" class="py-1.5 px-3 inline-flex items-center justify-center gap-x-1 text-xs font-semibold rounded-md border border-transparent bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 transition-all duration-200" title="Delete Home">
                       <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1zm1 3a1 1 0 100 2h4a1 1 0 100-2H8z" clip-rule="evenodd" />
@@ -306,33 +280,6 @@
                 </li>
                 <li v-if="homes.length === 0" class="text-gray-500 dark:text-neutral-500 p-3 bg-gray-50 dark:bg-neutral-800 rounded-md border border-gray-200 dark:border-neutral-700">No homes found for this location.</li>
               </ul>
-            </div>
-
-            <div v-if="showAddNewHomeInput" class="mt-8 p-6 border border-gray-300 rounded-lg bg-gray-50 dark:bg-neutral-800 shadow-md">
-              <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-neutral-200">Add New Home</h3>
-              <input
-                type="text"
-                v-model="newHomeName"
-                placeholder="New Home Name"
-                class="py-2.5 px-4 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300 focus:ring-offset-white dark:focus:ring-offset-neutral-900 mb-4"
-              />
-              <input
-                type="text"
-                v-model="newHomeAddress"
-                placeholder="Home Address (Optional)"
-                class="py-2.5 px-4 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300 focus:ring-offset-white dark:focus:ring-offset-neutral-900 mb-4"
-              />
-              <input
-                type="number"
-                v-model.number="newHomeRooms"
-                placeholder="Number of Rooms (Optional)"
-                class="py-2.5 px-4 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300 focus:ring-offset-white dark:focus:ring-offset-neutral-900 mb-4"
-              />
-              <button @click="addNewHome" class="py-2.5 px-6 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-full border border-transparent bg-blue-600 text-white shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 disabled:opacity-50 disabled:pointer-events-none transition-all duration-200 w-full">
-                Add Home
-              </button>
-              <p v-if="homeError" class="text-red-600 dark:text-red-400 text-sm mt-3">{{ homeError }}</p>
-              <p v-if="homeSuccessMessage" class="text-green-600 dark:text-green-400 text-sm mt-3">{{ homeSuccessMessage }}</p>
             </div>
           </div>
         </div>
@@ -346,388 +293,936 @@
         </div>
       </div>
     </div>
+
+    <!-- Modals (Add/Edit/Confirm) -->
+
+    <!-- Add University Modal -->
+    <div v-if="showAddUniversityModal" class="fixed inset-0 z-[100] overflow-y-auto bg-gray-900 bg-opacity-50 flex justify-center items-center p-4">
+      <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-xl w-full max-w-md p-6 animate-scale-in">
+        <h3 class="text-xl font-semibold text-gray-800 dark:text-neutral-200 mb-4">Add New University</h3>
+        <div class="space-y-4">
+          <div>
+            <label for="newUniversityName" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">University Name</label>
+            <input type="text" id="newUniversityName" v-model="newUniversityName"
+                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+                   placeholder="e.g., University of Nairobi">
+          </div>
+        </div>
+        <div class="flex justify-end gap-x-2 mt-6">
+          <button type="button" @click="showAddUniversityModal = false"
+                  class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-md border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-600">
+            Cancel
+          </button>
+          <button type="button" @click="submitAddUniversity"
+                  class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-md border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none">
+            Add University
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit University Modal -->
+    <div v-if="showEditUniversityModal" class="fixed inset-0 z-[100] overflow-y-auto bg-gray-900 bg-opacity-50 flex justify-center items-center p-4">
+      <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-xl w-full max-w-md p-6 animate-scale-in">
+        <h3 class="text-xl font-semibold text-gray-800 dark:text-neutral-200 mb-4">Edit University</h3>
+        <div class="space-y-4">
+          <div>
+            <label for="editUniversityName" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">University Name</label>
+            <input type="text" id="editUniversityName" v-model="editingUniversity.name"
+                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+                   placeholder="University Name">
+          </div>
+        </div>
+        <div class="flex justify-end gap-x-2 mt-6">
+          <button type="button" @click="showEditUniversityModal = false"
+                  class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-md border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-600">
+            Cancel
+          </button>
+          <button type="button" @click="submitEditUniversity"
+                  class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-md border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none">
+            Save Changes
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Location Modal -->
+    <div v-if="showAddLocationModal" class="fixed inset-0 z-[100] overflow-y-auto bg-gray-900 bg-opacity-50 flex justify-center items-center p-4">
+      <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-xl w-full max-w-md p-6 animate-scale-in">
+        <h3 class="text-xl font-semibold text-gray-800 dark:text-neutral-200 mb-4">Add New Location</h3>
+        <div class="space-y-4">
+          <div>
+            <label for="addLocationUniversitySelect" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Select University</label>
+            <select id="addLocationUniversitySelect" v-model="selectedUniversityId"
+                    class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
+              <option value="">-- Select University --</option>
+              <option v-for="uni in universityStore.universities" :key="uni.id" :value="uni.id">
+                {{ uni.name }}
+              </option>
+            </select>
+          </div>
+          <div>
+            <label for="newLocationName" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Location Name</label>
+            <input type="text" id="newLocationName" v-model="newLocationName"
+                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+                   placeholder="e.g., Main Campus, Kileleshwa">
+          </div>
+          <div>
+            <label for="newLocationId" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Location ID (e.g., main-campus)</label>
+            <input type="text" id="newLocationId" v-model="newLocationId"
+                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+                   placeholder="e.g., main-campus">
+          </div>
+        </div>
+        <div class="flex justify-end gap-x-2 mt-6">
+          <button type="button" @click="showAddLocationModal = false"
+                  class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-md border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-600">
+            Cancel
+          </button>
+          <button type="button" @click="submitAddLocation"
+                  class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-md border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none">
+            Add Location
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Location Modal -->
+    <div v-if="showEditLocationModal" class="fixed inset-0 z-[100] overflow-y-auto bg-gray-900 bg-opacity-50 flex justify-center items-center p-4">
+      <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-xl w-full max-w-md p-6 animate-scale-in">
+        <h3 class="text-xl font-semibold text-gray-800 dark:text-neutral-200 mb-4">Edit Location</h3>
+        <div class="space-y-4">
+          <div>
+            <label for="editLocationName" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Location Name</label>
+            <input type="text" id="editLocationName" v-model="editingLocation.name"
+                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+                   placeholder="Location Name">
+          </div>
+        </div>
+        <div class="flex justify-end gap-x-2 mt-6">
+          <button type="button" @click="showEditLocationModal = false"
+                  class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-md border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-600">
+            Cancel
+          </button>
+          <button type="button" @click="submitEditLocation"
+                  class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-md border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none">
+            Save Changes
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Home Modal -->
+    <div v-if="showAddHomeModal" class="fixed inset-0 z-[100] overflow-y-auto bg-gray-900 bg-opacity-50 flex justify-center items-center p-4">
+      <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-xl w-full max-w-md p-6 animate-scale-in">
+        <h3 class="text-xl font-semibold text-gray-800 dark:text-neutral-200 mb-4">Add New Home</h3>
+        <div class="space-y-4">
+          <div>
+            <label for="addHomeUniversitySelect" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Select University</label>
+            <select id="addHomeUniversitySelect" v-model="selectedUniversityId" @change="fetchLocations(selectedUniversityId)"
+                    class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
+              <option value="">-- Select University --</option>
+              <option v-for="uni in universityStore.universities" :key="uni.id" :value="uni.id">
+                {{ uni.name }}
+              </option>
+            </select>
+          </div>
+          <div>
+            <label for="addHomeLocationSelect" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Select Location</label>
+            <select id="addHomeLocationSelect" v-model="locationId"
+                    class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+                    :disabled="!selectedUniversityId || locations.length === 0">
+              <option value="">-- Select Location --</option>
+              <option v-for="loc in locations" :key="loc.id" :value="loc.id">
+                {{ loc.name }}
+              </option>
+            </select>
+          </div>
+          <!-- NEW: Select Caretaker for Home -->
+          <div>
+            <label for="selectCaretakerForHome" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Assign Caretaker</label>
+            <select id="selectCaretakerForHome" v-model="selectedCaretakerForHome"
+                    class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
+              <option value="">-- Select Caretaker --</option>
+              <option v-for="caretaker in caretakersList" :key="caretaker.uid" :value="caretaker.uid">
+                {{ caretaker.displayName }} ({{ caretaker.email }})
+              </option>
+            </select>
+          </div>
+          <!-- END NEW -->
+          <div>
+            <label for="newHomeName" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Home Name</label>
+            <input type="text" id="newHomeName" v-model="newHomeName"
+                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+                   placeholder="e.g., Sunshine Hostel">
+          </div>
+          <div>
+            <label for="newHomeAddress" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Address (Optional)</label>
+            <input type="text" id="newHomeAddress" v-model="newHomeAddress"
+                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+                   placeholder="e.g., 123 Main St">
+          </div>
+          <div>
+            <label for="newHomeRooms" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Number of Rooms (Optional)</label>
+            <input type="number" id="newHomeRooms" v-model.number="newHomeRooms"
+                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+                   placeholder="e.g., 10">
+          </div>
+          <div>
+            <label for="newHomeCaretakerPhoneNumber" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Caretaker Phone Number</label>
+            <input type="text" id="newHomeCaretakerPhoneNumber" v-model="newHomeCaretakerPhoneNumber"
+                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+                   placeholder="e.g., +254712345678">
+          </div>
+          <div>
+            <label for="newHomeRent" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Rent (per month)</label>
+            <input type="number" id="newHomeRent" v-model.number="newHomeRent"
+                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+                   placeholder="e.g., 5000">
+          </div>
+          <div>
+            <label for="newHomeDeposit" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Deposit</label>
+            <input type="number" id="newHomeDeposit" v-model.number="newHomeDeposit"
+                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+                   placeholder="e.g., 2500">
+          </div>
+          <div>
+            <label for="newHomeType" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Hostel Type</label>
+            <select id="newHomeType" v-model="newHomeType"
+                    class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
+              <option value="">-- Select Type --</option>
+              <option value="Bedsitter">Bedsitter</option>
+              <option value="One Bedroom">One Bedroom</option>
+              <option value="Shared Room">Shared Room</option>
+              <option value="Two Bedroom">Two Bedroom</option>
+            </select>
+          </div>
+
+          <!-- Image Upload Section -->
+          <div class="mt-4">
+            <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Home Images (Max 3)</label>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <div v-for="(file, index) in newHomeImageFiles" :key="index" class="relative">
+                <img :src="URL.createObjectURL(file)" class="w-24 h-24 object-cover rounded-md border border-gray-300" />
+                <button @click="removeNewHomeImage(index)" class="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 text-xs">
+                  &times;
+                </button>
+              </div>
+            </div>
+            <div class="flex items-center justify-center w-full">
+              <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-neutral-700 dark:bg-neutral-800 hover:bg-gray-100 dark:border-neutral-700 dark:hover:border-gray-600">
+                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                  <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-neutral-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                  </svg>
+                  <p class="mb-2 text-sm text-gray-500 dark:text-neutral-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                  <p class="text-xs text-gray-500 dark:text-neutral-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
+                </div>
+                <input id="dropzone-file" type="file" class="hidden" multiple @change="handleHomeImageFileInputChange" accept="image/*" />
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-end gap-x-2 mt-6">
+          <button type="button" @click="showAddHomeModal = false"
+                  class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-md border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-600">
+            Cancel
+          </button>
+          <button type="button" @click="submitAddHome"
+                  class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-md border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none">
+            Add Home
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Home Modal -->
+    <div v-if="showEditHomeModal" class="fixed inset-0 z-[100] overflow-y-auto bg-gray-900 bg-opacity-50 flex justify-center items-center p-4">
+      <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-xl w-full max-w-md p-6 animate-scale-in">
+        <h3 class="text-xl font-semibold text-gray-800 dark:text-neutral-200 mb-4">Edit Home: {{ editingHome.name }}</h3>
+        <div class="space-y-4">
+          <div>
+            <label for="editHomeName" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Home Name</label>
+            <input type="text" id="editHomeName" v-model="editingHome.name"
+                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+                   placeholder="Home Name">
+          </div>
+          <div>
+            <label for="editHomeAddress" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Address (Optional)</label>
+            <input type="text" id="editHomeAddress" v-model="editingHome.address"
+                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+                   placeholder="e.g., 123 Main St">
+          </div>
+          <div>
+            <label for="editHomeRooms" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Number of Rooms (Optional)</label>
+            <input type="number" id="editHomeRooms" v-model.number="editingHome.rooms"
+                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+                   placeholder="e.g., 10">
+          </div>
+          <div>
+            <label for="editHomeCaretakerPhoneNumber" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Caretaker Phone Number</label>
+            <input type="text" id="editHomeCaretakerPhoneNumber" v-model="editingHome.caretakerPhoneNumber"
+                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+                   placeholder="e.g., +254712345678">
+          </div>
+          <div>
+            <label for="editHomeRent" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Rent (per month)</label>
+            <input type="number" id="editHomeRent" v-model.number="editingHome.price"
+                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+                   placeholder="e.g., 5000">
+          </div>
+          <div>
+            <label for="editHomeDeposit" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Deposit</label>
+            <input type="number" id="editHomeDeposit" v-model.number="editingHome.deposit"
+                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+                   placeholder="e.g., 2500">
+          </div>
+          <div>
+            <label for="editHomeType" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Hostel Type</label>
+            <select id="editHomeType" v-model="editingHome.hostelType"
+                    class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
+              <option value="">-- Select Type --</option>
+              <option value="Bedsitter">Bedsitter</option>
+              <option value="One Bedroom">One Bedroom</option>
+              <option value="Shared Room">Shared Room</option>
+              <option value="Two Bedroom">Two Bedroom</option>
+            </select>
+          </div>
+          <div>
+            <label for="editHomeAvailability" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Availability</label>
+            <input type="checkbox" id="editHomeAvailability" v-model="editingHome.isAvailable"
+                   class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600">
+            <span class="ml-2 text-gray-700 dark:text-neutral-300">{{ editingHome.isAvailable ? 'Available' : 'Not Available' }}</span>
+          </div>
+          <!-- Current Images Display (for editing) -->
+          <div v-if="editingHome.imageUrls && editingHome.imageUrls.length > 0">
+            <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Current Images</label>
+            <div class="flex flex-wrap gap-2">
+              <div v-for="(url, index) in editingHome.imageUrls" :key="index" class="relative">
+                <img :src="url" class="w-24 h-24 object-cover rounded-md border border-gray-300 cursor-pointer" @click="openImageViewer(url)" />
+                <!-- No delete button here, as image deletion is complex from frontend -->
+              </div>
+            </div>
+          </div>
+          <!-- New Image Upload for Edit (Currently displays message, actual upload logic needed in script) -->
+          <div class="mt-4">
+            <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Upload New Images (Max 3)</label>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <div v-for="(file, index) in newImageFilesForEdit" :key="index" class="relative">
+                <img :src="URL.createObjectURL(file)" class="w-24 h-24 object-cover rounded-md border border-gray-300" />
+                <button @click="newImageFilesForEdit.splice(index, 1)" class="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 text-xs">
+                  &times;
+                </button>
+              </div>
+            </div>
+            <div class="flex items-center justify-center w-full">
+              <label for="edit-dropzone-file" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-neutral-700 dark:bg-neutral-800 hover:bg-gray-100 dark:border-neutral-700 dark:hover:border-gray-600">
+                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                  <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-neutral-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                  </svg>
+                  <p class="mb-2 text-sm text-gray-500 dark:text-neutral-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                  <p class="text-xs text-gray-500 dark:text-neutral-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
+                </div>
+                <input id="edit-dropzone-file" type="file" class="hidden" multiple @change="event => newImageFilesForEdit = Array.from(event.target.files)" accept="image/*" />
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-end gap-x-2 mt-6">
+          <button type="button" @click="showEditHomeModal = false"
+                  class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-md border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-600">
+            Cancel
+          </button>
+          <button type="button" @click="submitEditHome"
+                  class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-md border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none">
+            Save Changes
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirmation Modal (for delete actions) -->
+    <div v-if="showConfirmationModal" class="fixed inset-0 z-[100] overflow-y-auto bg-gray-900 bg-opacity-50 flex justify-center items-center p-4">
+      <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-xl w-full max-w-sm p-6 animate-scale-in">
+        <h3 class="text-xl font-semibold text-gray-800 dark:text-neutral-200 mb-4">Confirm Action</h3>
+        <p class="text-gray-700 dark:text-neutral-300 mb-6">{{ confirmationMessage }}</p>
+        <div class="flex justify-end gap-x-2">
+          <button type="button" @click="cancelConfirmedAction"
+                  class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-md border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-600">
+            Cancel
+          </button>
+          <button type="button" @click="executeConfirmedAction"
+                  class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-md border border-transparent bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:pointer-events-none">
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Image Viewer Modal (ensure this component is imported and available) -->
+    <ImageViewerModal :show="showImageViewer" :image-url="currentImageUrl" @close="showImageViewer = false" />
+
   </div>
 </template>
 
+
+
+
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
-import CardItem from '@/components/CardItem.vue'
-import { useUniversityStore } from '@/stores/additionStore'
+import { ref, reactive, computed, onMounted, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { useAuthStore } from '../../stores/auth';
+import { useUniversityStore } from '../../stores/universityStore';
+import { useCaretakerStore } from '../../stores/caretakerStore';
+import { getAuth, signInWithCustomToken, signInAnonymously } from 'firebase/auth';
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
+import { db } from '@/firebase/config';
 
-import { collection, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore'
-import { db } from '@/firebase/config'
+// Components
+import CardItem from '@/components/CardItem.vue';
+import CheckIcon from '@/components/icons/CheckIcon.vue';
+import ImageViewerModal from '@/components/ImageViewerModal.vue';
 
-const universityStore = useUniversityStore()
-const isLoading = ref(false)
-const error = ref(null)
-const searchQuery = ref('')
+// Instantiate Pinia Stores
+const authStore = useAuthStore();
+const universityStore = useUniversityStore();
+const caretakerStore = useCaretakerStore();
+const router = useRouter();
 
-// View toggles
-const showUniversityView = ref(false)
-const showLocationView = ref(false)
-const showHomesView = ref(false)
+// User state
+const user = computed(() => authStore.user);
 
-// Selected IDs
-const selectedUniversityId = ref('')
-const locationId = ref('')
-const selectedHomeId = ref('')
+// Loading and Error States
+const isLoading = ref(false);
+const error = ref(null);
+
+// UI Messages
+const showMessage = ref(false);
+const messageText = ref('');
+const messageType = ref('success');
+
+// Confirmation Modal State
+const showConfirmationModal = ref(false);
+const confirmationMessage = ref('');
+const confirmationAction = ref(null);
+const confirmationPayload = ref(null);
+
+// Reactive state for UI views
+const showUniversityView = ref(false);
+const showLocationView = ref(false);
+const showHomesView = ref(false);
+
+// Selected IDs for navigation
+const selectedUniversityId = ref('');
+const locationId = ref(''); // Keep as locationId to match template for now
+const selectedHomeId = ref('');
 
 // Data arrays
-const locations = ref([])
-const homes = ref([])
+const locations = ref([]);
+const homes = ref([]);
 
-// State for adding universities
-const showAddUniversityInput = ref(false)
-const newUniversityName = ref('')
-const duplicateError = ref(false)
-const successMessage = ref('')
+// State for Add University Modal
+const showAddUniversityModal = ref(false);
+const newUniversityName = ref('');
 
-// State for adding locations
-const showAddLocationInput = ref(false)
-const newLocationName = ref('')
-const selectedUniversityForLocation = ref('') // This ref seems unused, relying on selectedUniversityId
-const duplicateLocationError = ref(false)
-const locationSuccessMessage = ref('')
+// State for Add Location Modal
+const showAddLocationModal = ref(false);
+const newLocationName = ref('');
+const newLocationId = ref('');
 
-// State for adding homes
-const showAddNewHomeInput = ref(false)
-const newHomeName = ref('')
-const newHomeAddress = ref('')
-const newHomeRooms = ref(0)
-const duplicateHomeError = ref(false)
-const homeSuccessMessage = ref('')
-const homeError = ref('')
+// State for Add Home Modal
+const showAddHomeModal = ref(false);
+const newHomeName = ref('');
+const newHomeAddress = ref('');
+const newHomeRooms = ref(0);
+const newHomeCaretakerPhoneNumber = ref('');
+const newHomeRent = ref(null);
+const newHomeDeposit = ref(null);
+const newHomeType = ref('');
+const newHomeImageFiles = ref([]);
 
-// State for editing
-const editingItemId = ref(null)
-const nameForEdit = ref('') // To hold the name being edited
+// Caretaker selection for adding homes
+const caretakersList = computed(() => caretakerStore.allCaretakers);
+const selectedCaretakerForHome = ref('');
 
-// Updated stats object to reflect actual data counts
+// State for Editing Modals
+const showEditUniversityModal = ref(false);
+const editingUniversity = reactive({ id: '', name: '' });
+
+const showEditLocationModal = ref(false);
+const editingLocation = reactive({ id: '', name: '', universityId: '' });
+
+const showEditHomeModal = ref(false);
+const editingHome = reactive({
+  id: '',
+  name: '',
+  universityId: '',
+  locationId: '',
+  caretakerPhoneNumber: '',
+  price: null,
+  deposit: null,
+  hostelType: '',
+  imageUrls: [],
+  isAvailable: false,
+  caretakerUid: ''
+});
+const newImageFilesForEdit = ref([]); // Corrected variable name for edit images
+
+// Search functionality
+const searchQuery = ref('');
+
+// Stats
 const stats = ref({
   totalUniversities: 0,
   totalLocations: 0,
   totalHomes: 0,
-  sessions: 0, // Keeping these as placeholders, update if you have actual sources
-  clickRate: 0, // Keeping these as placeholders, update if you have actual sources
-  pageviews: 0 // Derived or placeholder
-})
+  sessions: 0,
+  clickRate: 0,
+  pageviews: 0
+});
 
 const filteredUniversities = computed(() => {
-  if (!searchQuery.value) return universityStore.universities
+  if (!searchQuery.value) return universityStore.universities;
   return universityStore.universities.filter(uni =>
     uni.name.toLowerCase().includes(searchQuery.value.toLowerCase())
-  )
-})
+  );
+});
 
-// Updated statsCards computed property to use the new stats keys
 const statsCards = computed(() => [
   {
     title: 'Total Universities',
     value: stats.value.totalUniversities.toLocaleString(),
-    icon: {
-      template:
-        '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 2 0 0 0-3-3.87"/><path d="M16 3.13a4 2 0 0 1 0 7.75"/></svg>'
-    }
+    icon: { template: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 2 0 0 0-3-3.87"/><path d="M16 3.13a4 2 0 0 1 0 7.75"/></svg>' }
   },
   {
     title: 'Total Locations',
     value: stats.value.totalLocations.toLocaleString(),
-    icon: {
-      template:
-        '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 0 0 0 .586 1.414L12 12l4.414-4.414A2 0 0 0 17 6.172V2"/></svg>'
-    }
+    icon: { template: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 0 0 0 .586 1.414L12 12l4.414-4.414A2 0 0 0 17 6.172V2"/></svg>' }
   },
   {
     title: 'Total Homes',
     value: stats.value.totalHomes.toLocaleString(),
-    icon: {
-      template:
-        '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M21 11V5a2 0 0 0-2-2H5a2 0 0 0-2 2v14a2 0 0 0 2 2h6"/><path d="m12 12 4 10 1.7-4.3L22 16Z"/></svg>'
-    }
+    icon: { template: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M21 11V5a2 0 0 0-2-2H5a2 0 0 0-2 2v14a2 2 0 0 0 2 2h6"/><path d="m12 12 4 10 1.7-4.3L22 16Z"/></svg>' }
   },
   {
     title: 'Pageviews',
     value: stats.value.pageviews.toLocaleString(),
-    icon: {
-      template:
-        '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M5 12s2.545-5 7-5c4.454 0 7 5 7 5s-2.546 5-7 5c-4.455 0-7-5-7-5z"/><path d="M12 13a1 1 0 1 0 0-2 1 0 0 0 0 2z"/><path d="M21 17v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2"/><path d="M21 7V5a2 2 0 0 0-2-2H5a2 0 0 0-2 2v2"/></svg>'
+    icon: { template: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M5 12s2.545-5 7-5c4.454 0 7 5 7 5s-2.546 5-7 5c-4.455 0-7-5-7-5z"/><path d="M12 13a1 1 0 1 0 0-2 1 0 0 0 0 2z"/><path d="M21 17v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2"/><path d="M21 7V5a2 0 0 0-2-2H5a2 0 0 0-2 2v2"/></svg>' }
+  }
+]);
+
+// --- Message Display Functions ---
+const displayMessage = (text, type = 'success') => {
+  messageText.value = text;
+  messageType.value = type;
+  showMessage.value = true;
+  setTimeout(() => {
+    showMessage.value = false;
+    messageText.value = '';
+  }, 3000);
+};
+
+// --- Custom Confirmation Modal Functions ---
+const confirmAction = (message, action, payload = null) => {
+  confirmationMessage.value = message;
+  confirmationAction.value = action;
+  confirmationPayload.value = payload;
+  showConfirmationModal.value = true;
+};
+
+const executeConfirmedAction = async () => {
+  if (confirmationAction.value) {
+    try {
+      await confirmationAction.value(confirmationPayload.value);
+      displayMessage('Operation completed successfully!', 'success');
+    } catch (err) {
+      console.error("Confirmation action failed:", err);
+      displayMessage(`Operation failed: ${err.message || 'An unknown error occurred.'}`, 'error');
     }
   }
-])
+  showConfirmationModal.value = false;
+  confirmationAction.value = null;
+  confirmationPayload.value = null;
+  confirmationMessage.value = '';
+};
 
+const cancelConfirmedAction = () => {
+  showConfirmationModal.value = false;
+  confirmationAction.value = null;
+  confirmationPayload.value = null;
+  confirmationMessage.value = '';
+};
+
+// --- Helper Functions for Names ---
 const getUniversityName = (id) => {
-  const university = universityStore.universities.find((u) => u.id === id)
-  return university?.name || 'Unknown University'
-}
+  const university = universityStore.universities.find((u) => u.id === id);
+  return university?.name || 'Unknown University';
+};
 const getLocationName = (id) => {
-  const location = locations.value.find((l) => l.id === id)
-  return location?.name || 'Unknown Location'
-}
+  const location = locations.value.find((l) => l.id === id);
+  return location?.name || 'Unknown Location';
+};
 const getHomeName = (id) => {
-  const home = homes.value.find((h) => h.id === id)
-  return home?.name || 'Unnamed Home'
-}
+  const home = homes.value.find((h) => h.id === id);
+  return home?.name || 'Unnamed Home';
+};
 
-// --- Generic Edit/Delete Helpers ---
-const setEditing = (id, currentName) => {
-  editingItemId.value = id
-  nameForEdit.value = currentName
-}
+// --- University Management ---
+const openAddUniversityModal = () => {
+  newUniversityName.value = '';
+  showAddUniversityModal.value = true;
+  error.value = null;
+};
 
-const cancelEditing = () => {
-  editingItemId.value = null
-  nameForEdit.value = ''
-}
-
-const resetNameForEdit = () => {
-  nameForEdit.value = ''
-  editingItemId.value = null
-}
-
-// --- University Actions ---
-const submitNewUniversity = async () => {
-  duplicateError.value = false
-  successMessage.value = ''
-
-  const trimmed = newUniversityName.value.trim()
-  if (!trimmed) return
-
-  const exists = universityStore.universities.some(
-    (u) => u.name.toLowerCase() === trimmed.toLowerCase()
-  )
-
-  if (exists) {
-    duplicateError.value = true
-    return
+const submitAddUniversity = async () => {
+  const trimmed = newUniversityName.value.trim();
+  if (!trimmed) {
+    displayMessage('University name cannot be empty.', 'error');
+    return;
   }
 
-  const newId = trimmed.replace(/\s+/g, '-').toLowerCase()
+  const newId = trimmed.replace(/\s+/g, '-').toLowerCase();
 
   try {
-    await universityStore.addUniversity(newId, trimmed)
-    await universityStore.fetchUniversities()
-    await fetchStats(); // <--- Update stats after adding university
-    successMessage.value = 'University added successfully!'
-    newUniversityName.value = ''
-    setTimeout(() => {
-      showAddUniversityInput.value = false
-      successMessage.value = ''
-      duplicateError.value = false // Also clear the duplicate error
-    }, 2500)
+    await universityStore.addUniversity(newId, trimmed);
+    displayMessage('University added successfully!', 'success');
+    showAddUniversityModal.value = false;
+    await universityStore.fetchUniversities();
+    await fetchStats();
   } catch (err) {
-    console.error("Error adding university:", err)
-    error.value = `Error adding university: ${err.message}`
+    console.error("Error adding university:", err);
+    displayMessage(`Error adding university: ${err.message}`, 'error');
   }
-}
+};
 
-const editUniversity = async (universityId, currentName) => {
-  setEditing(universityId, currentName)
-  const newName = prompt(`Enter new name for ${currentName}:`, currentName);
-  if (newName && newName.trim() !== currentName) {
-    try {
-      await universityStore.updateUniversity(universityId, { name: newName.trim() });
-      await universityStore.fetchUniversities(); // Re-fetch to update UI
-      await fetchStats(); // <--- Update stats after editing university
-      successMessage.value = 'University updated successfully!';
-      setTimeout(() => successMessage.value = '', 2500);
-    } catch (err) {
-      console.error("Error updating university:", err);
-      error.value = `Error updating university: ${err.message}`;
-    }
+// FIX: Updated editUniversity to open modal and populate editing object
+const editUniversity = (university) => {
+  editingUniversity.id = university.id;
+  editingUniversity.name = university.name;
+  showEditUniversityModal.value = true;
+  error.value = null;
+};
+
+// FIX: Added submitEditUniversity function
+const submitEditUniversity = async () => {
+  if (!editingUniversity.name) {
+    displayMessage('University name cannot be empty.', 'error');
+    return;
   }
-  cancelEditing();
-}
+  try {
+    await universityStore.updateUniversity(editingUniversity.id, { name: editingUniversity.name.trim() });
+    displayMessage('University updated successfully!', 'success');
+    showEditUniversityModal.value = false;
+    await universityStore.fetchUniversities(); // Re-fetch to update UI
+    await fetchStats();
+  } catch (err) {
+    console.error("Error updating university:", err);
+    displayMessage(`Error updating university: ${err.message}`, 'error');
+  }
+};
 
 const deleteUniversity = async (universityId, universityName) => {
-  // IMPORTANT: Replace prompt/confirm with a custom modal UI for better UX
-  if (confirm(`Are you sure you want to delete the university "${universityName}"? This will also delete all its locations and homes.`)) {
+  confirmAction(`Are you sure you want to delete the university "${universityName}"? This will also delete all its locations and homes. This action cannot be undone.`, async () => {
     try {
       await universityStore.deleteUniversity(universityId);
-      await universityStore.fetchUniversities(); // Re-fetch to update UI
-      await fetchStats(); // <--- Update stats after deleting university
-      selectedUniversityId.value = ''; // Reset selections
+      displayMessage('University deleted successfully!', 'success');
+      await universityStore.fetchUniversities();
+      await fetchStats();
+      selectedUniversityId.value = '';
       locationId.value = '';
       selectedHomeId.value = '';
       locations.value = [];
       homes.value = [];
-      successMessage.value = 'University deleted successfully!';
-      setTimeout(() => successMessage.value = '', 2500);
     } catch (err) {
       console.error("Error deleting university:", err);
-      error.value = `Error deleting university: ${err.message}`;
+      displayMessage(`Error deleting university: ${err.message}`, 'error');
     }
-  }
-}
+  });
+};
 
-// --- Location Actions ---
-const submitNewLocation = async () => {
-  duplicateLocationError.value = false
-  locationSuccessMessage.value = ''
+// --- Location Management ---
+const openAddLocationModal = () => {
+  newLocationName.value = '';
+  newLocationId.value = '';
+  showAddLocationModal.value = true;
+  error.value = null;
+};
 
-  const trimmed = newLocationName.value.trim()
-  if (!trimmed || !selectedUniversityId.value) {
-    locationSuccessMessage.value = 'Please fill in all details and select a university.'
-    return
+const submitAddLocation = async () => {
+  const trimmedName = newLocationName.value.trim();
+  if (!trimmedName || !newLocationId.value || !selectedUniversityId.value) {
+    displayMessage('Please fill in all location details and select a university.', 'error');
+    return;
   }
 
   try {
-    const snapshot = await getDocs(collection(db, `Universities/${selectedUniversityId.value}/locations`))
-    const exists = snapshot.docs.some(doc => (doc.data().name || '').toLowerCase() === trimmed.toLowerCase())
-
-    if (exists) {
-      duplicateLocationError.value = true
-      locationSuccessMessage.value = 'Location with this name already exists.'
-      return
-    }
-
-    const newId = trimmed.replace(/\s+/g, '-').toLowerCase()
-    await universityStore.addLocation(newId, trimmed, selectedUniversityId.value)
-    locationSuccessMessage.value = 'Location added successfully!'
-    newLocationName.value = ''
-    fetchLocations(selectedUniversityId.value); // Re-fetch locations
-    await fetchStats(); // <--- Update stats after adding location
-    setTimeout(() => {
-      showAddLocationInput.value = false
-      locationSuccessMessage.value = ''
-      duplicateLocationError.value = false; // Clear error on success
-    }, 2500)
+    await universityStore.addLocation(newLocationId.value.trim(), trimmedName, selectedUniversityId.value);
+    displayMessage('Location added successfully!', 'success');
+    showAddLocationModal.value = false;
+    await fetchLocations(selectedUniversityId.value);
+    await universityStore.fetchAllLocations();
+    await fetchStats();
   } catch (err) {
     console.error("Error adding location:", err);
-    locationSuccessMessage.value = `Error adding location: ${err.message}`;
-    duplicateLocationError.value = true;
+    displayMessage(`Error adding location: ${err.message}`, 'error');
   }
-}
+};
 
-const editLocation = async (locId, currentName) => {
-  setEditing(locId, currentName)
-  // IMPORTANT: Replace prompt/confirm with a custom modal UI for better UX
-  const newName = prompt(`Enter new name for ${currentName}:`, currentName);
-  if (newName && newName.trim() !== currentName) {
-    try {
-      await universityStore.updateLocation(selectedUniversityId.value, locId, { name: newName.trim() });
-      await fetchLocations(selectedUniversityId.value); // Re-fetch to update UI
-      await fetchStats(); // <--- Update stats after editing location
-      locationSuccessMessage.value = 'Location updated successfully!';
-      setTimeout(() => locationSuccessMessage.value = '', 2500);
-    } catch (err) {
-      console.error("Error updating location:", err);
-      locationSuccessMessage.value = `Error updating location: ${err.message}`;
-    }
+const fetchLocations = async (universityId) => {
+  if (!universityId) {
+    locations.value = [];
+    return;
   }
-  cancelEditing();
-}
+  isLoading.value = true;
+  error.value = null;
+  try {
+    locations.value = await universityStore.getLocations(universityId);
+  } catch (err) {
+    error.value = `Error fetching locations: ${err.message}`;
+    displayMessage(`Error fetching locations: ${err.message}`, 'error');
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// FIX: Updated editLocation to open modal and populate editing object
+const editLocation = (location) => {
+  editingLocation.id = location.id;
+  editingLocation.name = location.name;
+  editingLocation.universityId = selectedUniversityId.value; // Ensure universityId is set
+  showEditLocationModal.value = true;
+  error.value = null;
+};
+
+// FIX: Added submitEditLocation function
+const submitEditLocation = async () => {
+  if (!editingLocation.name) {
+    displayMessage('Location name cannot be empty.', 'error');
+    return;
+  }
+  try {
+    await universityStore.updateLocation(editingLocation.universityId, editingLocation.id, { name: editingLocation.name.trim() });
+    displayMessage('Location updated successfully!', 'success');
+    showEditLocationModal.value = false;
+    await fetchLocations(editingLocation.universityId); // Re-fetch to update UI
+    await universityStore.fetchAllLocations();
+    await fetchStats();
+  } catch (err) {
+    console.error("Error updating location:", err);
+    displayMessage(`Error updating location: ${err.message}`, 'error');
+  }
+};
 
 const deleteLocation = async (locId, locName) => {
-  // IMPORTANT: Replace prompt/confirm with a custom modal UI for better UX
-  if (confirm(`Are you sure you want to delete the location "${locName}"? This will also delete all homes within it.`)) {
+  const universityId = selectedUniversityId.value;
+  if (!universityId) {
+    displayMessage('Please select a university first.', 'error');
+    return;
+  }
+  confirmAction(`Are you sure you want to delete "${locName}" and all its associated homes? This action cannot be undone.`, async () => {
     try {
-      await universityStore.deleteLocation(selectedUniversityId.value, locId);
-      await fetchLocations(selectedUniversityId.value); // Re-fetch to update UI
-      await fetchStats(); // <--- Update stats after deleting location
-      locationId.value = ''; // Reset selected location
+      await universityStore.deleteLocation(universityId, locId);
+      displayMessage('Location deleted successfully!', 'success');
+      await fetchLocations(universityId);
+      await universityStore.fetchAllLocations();
+      locationId.value = '';
       selectedHomeId.value = '';
       homes.value = [];
-      locationSuccessMessage.value = 'Location deleted successfully!';
-      setTimeout(() => locationSuccessMessage.value = '', 2500);
+      await fetchStats();
     } catch (err) {
       console.error("Error deleting location:", err);
-      locationSuccessMessage.value = `Error deleting location: ${err.message}`;
+      displayMessage(`Error deleting location: ${err.message}`, 'error');
     }
+  });
+};
+
+// --- Home (Hostel) Management ---
+const openAddHomeModal = async () => {
+  newHomeName.value = '';
+  newHomeAddress.value = '';
+  newHomeRooms.value = 0;
+  newHomeCaretakerPhoneNumber.value = '';
+  newHomeRent.value = null;
+  newHomeDeposit.value = null;
+  newHomeType.value = '';
+  newHomeImageFiles.value = [];
+  selectedCaretakerForHome.value = '';
+  showAddHomeModal.value = true;
+  error.value = null;
+
+  try {
+    await caretakerStore.fetchAllCaretakers();
+  } catch (err) {
+    console.error("Error fetching caretakers for add home modal:", err);
+    displayMessage(`Failed to load caretakers: ${err.message}`, 'error');
   }
-}
+};
 
-// --- Home Actions ---
-const addNewHome = async () => {
-  duplicateHomeError.value = false
-  homeSuccessMessage.value = ''
-  homeError.value = ''
-
-  const trimmedName = newHomeName.value.trim()
-
-  if (!trimmedName || !selectedUniversityId.value || !locationId.value) {
-    homeError.value = 'Please fill in all home details and ensure university/location are selected.'
-    return
+const submitAddHome = async () => {
+  if (!newHomeName.value || !selectedUniversityId.value || !locationId.value ||
+      !newHomeCaretakerPhoneNumber.value || newHomeRent.value === null || newHomeDeposit.value === null || !newHomeType.value || newHomeImageFiles.value.length === 0 || !selectedCaretakerForHome.value) {
+    displayMessage('Please fill in all required fields, select at least one image, and choose a caretaker.', 'error');
+    return;
+  }
+  if (newHomeRent.value <= 0 || newHomeDeposit.value <= 0) {
+    displayMessage('Rent and deposit must be greater than zero.', 'error');
+    return;
   }
 
   try {
-    const snapshot = await getDocs(
-      collection(db, `Universities/${selectedUniversityId.value}/locations/${locationId.value}/hostels`)
-    )
-    const exists = snapshot.docs.some(
-      doc => (doc.data().name || '').toLowerCase() === trimmedName.toLowerCase()
-    )
-
-    if (exists) {
-      duplicateHomeError.value = true
-      homeError.value = 'Home with this name already exists at this location.'
-      return
-    }
-
-    const newId = trimmedName.replace(/\s+/g, '-').toLowerCase()
-
-    await universityStore.addNewHostel(
+    await caretakerStore.addHostel(
+      selectedCaretakerForHome.value,
       selectedUniversityId.value,
       locationId.value,
-      newId,
-      { name: trimmedName, address: newHomeAddress.value, rooms: newHomeRooms.value }
-    )
+      newHomeName.value.trim(),
+      newHomeCaretakerPhoneNumber.value.trim(),
+      newHomeRent.value,
+      newHomeDeposit.value,
+      newHomeType.value,
+      newHomeImageFiles.value
+    );
 
-    homeSuccessMessage.value = 'New home added successfully!'
-    newHomeName.value = ''
-    newHomeAddress.value = ''
-    newHomeRooms.value = 0
-
-    await fetchHomes(selectedUniversityId.value, locationId.value);
-    await fetchStats(); // <--- Update stats after adding home
-
-    setTimeout(() => {
-      showAddNewHomeInput.value = false
-      homeSuccessMessage.value = ''
-      duplicateHomeError.value = false; // Clear error on success
-    }, 2500)
-  } catch (err) {
-    console.error("Error adding home:", err)
-    homeError.value = `Error adding home: ${err.message}`
-  }
-}
-
-const editHome = async (homeId, currentName) => {
-  setEditing(homeId, currentName)
-  // IMPORTANT: Replace prompt/confirm with a custom modal UI for better UX
-  const newName = prompt(`Enter new name for ${currentName}:`, currentName);
-  if (newName && newName.trim() !== currentName) {
-    try {
-      await universityStore.updateHostel(selectedUniversityId.value, locationId.value, homeId, { name: newName.trim() });
-      await fetchHomes(selectedUniversityId.value, locationId.value); // Re-fetch to update UI
-      await fetchStats(); // <--- Update stats after editing home
-      homeSuccessMessage.value = 'Home updated successfully!';
-      setTimeout(() => homeSuccessMessage.value = '', 2500);
-    } catch (err) {
-      console.error("Error updating home:", err);
-      homeError.value = `Error updating home: ${err.message}`;
+    if (!caretakerStore.error) {
+      displayMessage('Home added successfully!', 'success');
+      showAddHomeModal.value = false;
+      if (selectedUniversityId.value && locationId.value) {
+        await fetchHomes(selectedUniversityId.value, locationId.value);
+      }
+      await fetchStats();
+    } else {
+      displayMessage(caretakerStore.error, 'error');
     }
+
+  } catch (err) {
+    console.error("Error adding home:", err);
+    displayMessage(`Error adding home: ${err.message}`, 'error');
   }
-  cancelEditing();
-}
+};
+
+const handleHomeImageFileInputChange = (event) => {
+  const files = Array.from(event.target.files).filter(file => file.type.startsWith('image/'));
+  const maxFiles = 3;
+  const currentCount = newHomeImageFiles.value.length;
+  const filesToAddCount = Math.min(files.length, maxFiles - currentCount);
+
+  if (filesToAddCount > 0) {
+    const filesToProcess = files.slice(0, filesToAddCount);
+    newHomeImageFiles.value = [...newHomeImageFiles.value, ...filesToProcess];
+  } else if (files.length > 0) {
+    displayMessage(`You can only upload a maximum of ${maxFiles} images.`, 'error');
+  }
+  event.target.value = '';
+};
+
+const removeNewHomeImage = (index) => {
+  newHomeImageFiles.value.splice(index, 1);
+};
+
+const triggerNewHomeFileInput = (event) => {
+  event.target.closest('.drop-area').querySelector('input[type="file"]').click();
+};
+
+const fetchHomes = async (universityId, locId) => {
+  if (!universityId || !locId) {
+    homes.value = [];
+    return;
+  }
+  isLoading.value = true;
+  error.value = null;
+  try {
+    homes.value = await universityStore.getHostels(universityId, locId);
+  } catch (err) {
+    error.value = `Error fetching homes: ${err.message}`;
+    displayMessage(`Error fetching homes: ${err.message}`, 'error');
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const editHome = (home) => {
+  Object.assign(editingHome, { ...home });
+  editingHome.price = Number(home.price);
+  editingHome.deposit = Number(home.deposit);
+  newImageFilesForEdit.value = []; // Corrected variable name
+  showEditHomeModal.value = true;
+  error.value = null;
+};
+
+const submitEditHome = async () => {
+  if (!editingHome.name || !editingHome.caretakerPhoneNumber || editingHome.price === null || editingHome.deposit === null || !editingHome.hostelType) {
+    displayMessage('Please fill in all required fields for editing home.', 'error');
+    return;
+  }
+  if (editingHome.price <= 0 || editingHome.deposit <= 0) {
+    displayMessage('Rent and deposit must be greater than zero.', 'error');
+    return;
+  }
+
+  try {
+    if (newImageFilesForEdit.value.length > 0) { // Corrected variable name
+       displayMessage('New image files selected, but re-upload logic for editing is not fully implemented for admin. Images will not be updated.', 'error');
+    }
+
+    const dataToUpdate = {
+      name: editingHome.name,
+      caretakerPhoneNumber: editingHome.caretakerPhoneNumber,
+      price: editingHome.price,
+      deposit: editingHome.deposit,
+      hostelType: editingHome.hostelType,
+      isAvailable: editingHome.isAvailable,
+    };
+
+    await caretakerStore.updateHostel(
+      editingHome.caretakerUid,
+      editingHome.universityId,
+      editingHome.locationId,
+      editingHome.id,
+      dataToUpdate
+    );
+
+    displayMessage('Home updated successfully!', 'success');
+    showEditHomeModal.value = false;
+    await fetchHomes(editingHome.universityId, editingHome.locationId);
+    await fetchStats();
+  } catch (err) {
+    console.error("Error updating home:", err);
+    displayMessage(`Failed to update home: ${err.message || 'An unknown error occurred.'}`, 'error');
+  }
+};
 
 const deleteHome = async (homeId, homeName) => {
-  // IMPORTANT: Replace prompt/confirm with a custom modal UI for better UX
-  if (confirm(`Are you sure you want to delete the home "${homeName}"?`)) {
+  const universityId = selectedUniversityId.value;
+  const locId = locationId.value; // Use locationId
+  const homeToDelete = homes.value.find(h => h.id === homeId);
+
+  if (!universityId || !locId || !homeToDelete) {
+    displayMessage('Please select a university and location, and ensure the home exists.', 'error');
+    return;
+  }
+
+  confirmAction(`Are you sure you want to delete "${homeName}"? This action cannot be undone.`, async () => {
     try {
-      await universityStore.deleteHostel(selectedUniversityId.value, locationId.value, homeId);
-      await fetchHomes(selectedUniversityId.value, locationId.value); // Re-fetch to update UI
-      await fetchStats(); // <--- Update stats after deleting home
-      selectedHomeId.value = ''; // Reset selected home
-      homeSuccessMessage.value = 'Home deleted successfully!';
-      setTimeout(() => homeSuccessMessage.value = '', 2500);
+      await caretakerStore.deleteHostel(
+        homeToDelete.caretakerUid,
+        universityId,
+        locId, // Use locId
+        homeId,
+        homeToDelete.imageUrls
+      );
+      displayMessage('Home deleted successfully!', 'success');
+      await fetchHomes(universityId, locId); // Use locId
+      selectedHomeId.value = '';
+      await fetchStats();
     } catch (err) {
       console.error("Error deleting home:", err);
-      homeError.value = `Error deleting home: ${err.message}`;
+      displayMessage(`Failed to delete home: ${err.message || 'An unknown error occurred.'}`, 'error');
     }
-  }
-}
+  });
+};
 
-// --- Fetching Data ---
+
+// --- Fetching Data for Stats ---
 const fetchStats = async () => {
   isLoading.value = true;
   error.value = null;
@@ -736,153 +1231,137 @@ const fetchStats = async () => {
   let totalHomesCount = 0;
 
   try {
-    // 1. Get Universities Count
     const universitiesSnapshot = await getDocs(collection(db, 'Universities'));
     totalUniversitiesCount = universitiesSnapshot.size;
 
-    // 2. Get Locations Count (nested under Universities)
     for (const uniDoc of universitiesSnapshot.docs) {
       const locationsSnapshot = await getDocs(collection(db, `Universities/${uniDoc.id}/locations`));
       totalLocationsCount += locationsSnapshot.size;
 
-      // 3. Get Homes Count (nested under Locations)
       for (const locDoc of locationsSnapshot.docs) {
         const homesSnapshot = await getDocs(collection(db, `Universities/${uniDoc.id}/locations/${locDoc.id}/hostels`));
-        totalHomesCount += homesSnapshot.size;
+        totalHomesCount += homesSnapshot.docs.filter(doc => !doc.data().placeholder).length;
       }
     }
 
-    // Update the reactive stats object
     stats.value.totalUniversities = totalUniversitiesCount;
     stats.value.totalLocations = totalLocationsCount;
     stats.value.totalHomes = totalHomesCount;
-
-    // Retaining original random/derived values for sessions and pageviews
-    // as their source is not clear from the provided code.
-    stats.value.sessions = Math.round(Math.random() * 100); // Placeholder
-    stats.value.clickRate = Math.round(Math.random() * 100); // Placeholder
-    stats.value.pageviews = totalUniversitiesCount * 10; // Derived from totalUniversities
+    stats.value.sessions = Math.round(Math.random() * 100);
+    stats.value.clickRate = Math.round(Math.random() * 100);
+    stats.value.pageviews = totalUniversitiesCount * 10;
 
   } catch (err) {
     console.error("Error fetching dashboard stats:", err);
     error.value = `Failed to load dashboard statistics: ${err.message}`;
+    displayMessage(`Failed to load dashboard statistics: ${err.message}`, 'error');
   } finally {
     isLoading.value = false;
   }
 };
 
-
-const fetchLocations = async (universityId) => {
-  if (!universityId) {
-    locations.value = []
-    return
-  }
-  try {
-    isLoading.value = true
-    const querySnapshot = await getDocs(collection(db, `Universities/${universityId}/locations`))
-    locations.value = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data()
-    }))
-  } catch (err) {
-    error.value = `Error fetching locations: ${err.message}`
-  } finally {
-    isLoading.value = false
-  }
-}
-
-const fetchHomes = async (universityId, locId) => {
-  if (!universityId || !locId) {
-    homes.value = []
-    return
-  }
-  try {
-    isLoading.value = true
-    const querySnapshot = await getDocs(
-      collection(db, `Universities/${universityId}/locations/${locId}/hostels`)
-    )
-    homes.value = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data()
-    }))
-  } catch (err) {
-    error.value = `Error fetching homes: ${err.message}`
-  } finally {
-    isLoading.value = false
-  }
-}
-
 // --- Selection Handlers ---
 const selectUniversity = (id) => {
-  selectedUniversityId.value = id
-  locationId.value = ''
-  selectedHomeId.value = ''
-  homes.value = []
-  fetchLocations(id)
-}
+  selectedUniversityId.value = id;
+  locationId.value = '';
+  selectedHomeId.value = '';
+  homes.value = [];
+  fetchLocations(id);
+};
 
 const selectLocation = (id) => {
-  locationId.value = id
-  selectedHomeId.value = ''
-  fetchHomes(selectedUniversityId.value, id)
-}
+  locationId.value = id;
+  selectedHomeId.value = '';
+  fetchHomes(selectedUniversityId.value, id);
+};
 
 const selectHome = (id) => {
-  selectedHomeId.value = id
-}
+  selectedHomeId.value = id;
+};
 
 // --- View Toggles ---
 const toggleUniversityView = () => {
-  showUniversityView.value = !showUniversityView.value
-  if (showUniversityView.value) universityStore.fetchUniversities()
+  showUniversityView.value = !showUniversityView.value;
+  if (showUniversityView.value) {
+    universityStore.fetchUniversities();
+  }
   showLocationView.value = false;
   showHomesView.value = false;
-  selectedUniversityId.value = ''; // Reset selections when collapsing
+  selectedUniversityId.value = '';
   locationId.value = '';
   selectedHomeId.value = '';
   locations.value = [];
   homes.value = [];
-}
+};
 
 const toggleLocationView = () => {
-  showLocationView.value = !showLocationView.value
-  if (showLocationView.value && selectedUniversityId.value) fetchLocations(selectedUniversityId.value)
+  showLocationView.value = !showLocationView.value;
+  if (showLocationView.value && selectedUniversityId.value) {
+    fetchLocations(selectedUniversityId.value);
+  }
   showUniversityView.value = false;
   showHomesView.value = false;
-  locationId.value = ''; // Reset selections when collapsing
+  locationId.value = '';
   selectedHomeId.value = '';
   homes.value = [];
-}
+};
 
 const toggleHomesView = () => {
-  showHomesView.value = !showHomesView.value
+  showHomesView.value = !showHomesView.value;
   if (showHomesView.value && selectedUniversityId.value && locationId.value) {
-    fetchHomes(selectedUniversityId.value, locationId.value)
+    fetchHomes(selectedUniversityId.value, locationId.value);
   }
   showUniversityView.value = false;
   showLocationView.value = false;
-  selectedHomeId.value = ''; // Reset selection when collapsing
-}
+  selectedHomeId.value = '';
+};
 
 // --- Data Download ---
-const downloadData = () => {
-  const data = [
-    'Universities:',
-    ...universityStore.universities.map((u) => `- ${u.name}`),
-    '\nLocations:',
-    ...locations.value.map((l) => `- ${l.name}`),
-    '\nHomes:',
-    ...homes.value.map((h) => `- ${h.name || 'Unnamed Home'}`)
-  ].join('\n')
+const downloadData = async () => {
+  isLoading.value = true;
+  error.value = null;
+  try {
+    await universityStore.fetchUniversities();
+    let data = ['Universities:'];
+    for (const uni of universityStore.universities) {
+      data.push(`- ${uni.name} (ID: ${uni.id})`);
+      data.push('  Locations:');
+      const uniLocations = await universityStore.getLocations(uni.id);
+      if (uniLocations.length > 0) {
+        for (const loc of uniLocations) {
+          data.push(`  - ${loc.name} (ID: ${loc.id})`);
+          data.push('    Homes:');
+          const locHomes = await universityStore.getHostels(uni.id, loc.id);
+          if (locHomes.length > 0) {
+            locHomes.forEach(home => {
+              if (!home.placeholder) {
+                data.push(`    - ${home.name || 'Unnamed Home'} (ID: ${home.id}, Address: ${home.address || 'N/A'}, Rooms: ${home.rooms || 'N/A'}, Caretaker: ${home.caretakerUid || 'N/A'})`);
+              }
+            });
+          } else {
+            data.push('    (No homes)');
+          }
+        }
+      } else {
+        data.push('  (No locations)');
+      }
+    }
 
-  const blob = new Blob([data], { type: 'text/plain' })
-  const url = URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  link.href = url
-  link.download = 'admin_data.txt'
-  link.click()
-  URL.revokeObjectURL(url)
-}
+    const blob = new Blob([data.join('\n')], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'admin_data.txt';
+    link.click();
+    URL.revokeObjectURL(url);
+    displayMessage('Data downloaded successfully!', 'success');
+  } catch (err) {
+    console.error("Error downloading data:", err);
+    displayMessage(`Error downloading data: ${err.message}`, 'error');
+  } finally {
+    isLoading.value = false;
+  }
+};
 
 // --- Watchers ---
 watch(selectedUniversityId, (newVal) => {
@@ -905,17 +1384,112 @@ watch(locationId, (newVal) => {
   }
 });
 
+// NEW: Reactive variable to store admin status
+const isAdmin = ref(false);
+
+// NEW: Function to check admin access (combining custom claims and Firestore document)
+async function checkAdminAccess(uid) {
+  const auth = getAuth();
+  let isUserAdmin = false;
+
+  try {
+    const idTokenResult = await auth.currentUser.getIdTokenResult(true);
+    console.log('AdminDashboard: User ID Token Result:', idTokenResult);
+    console.log('AdminDashboard: User Claims:', idTokenResult.claims);
+
+    if (idTokenResult.claims.role === 'admin') {
+      isUserAdmin = true;
+      console.log('AdminDashboard: User is admin via custom claims.');
+    } else {
+      console.log('AdminDashboard: Custom claim "admin" not found. Checking Firestore document...');
+      const userDocRef = doc(db, 'users', uid);
+      const userDocSnap = await getDoc(userDocRef);
+
+      if (userDocSnap.exists()) {
+        const userData = userDocSnap.data();
+        console.log('AdminDashboard: User document loaded from Firestore. Role:', userData.role);
+        if (userData.role === 'admin') {
+          isUserAdmin = true;
+          console.log('AdminDashboard: User is admin via Firestore document.');
+        } else {
+          console.warn('AdminDashboard: Firestore document role is NOT admin.');
+        }
+      } else {
+        console.warn('AdminDashboard: User document not found in Firestore.');
+      }
+    }
+  } catch (tokenError) {
+    console.error("AdminDashboard: Error getting ID token or claims/Firestore document:", tokenError);
+    displayMessage('Authentication error during role check. Please log in again.', 'error');
+  }
+  isAdmin.value = isUserAdmin;
+  return isUserAdmin;
+}
+
 // --- On Mounted ---
 onMounted(async () => {
-  try {
-    await Promise.all([
-      universityStore.fetchUniversities(),
-      fetchStats() // Fetch initial stats on mount
-    ])
-  } catch (err) {
-    error.value = `Error initializing data: ${err.message}`
+  const auth = getAuth();
+  console.log('AdminDashboard: onMounted - Starting authentication check.');
+  console.log('AdminDashboard: __initial_auth_token available:', typeof __initial_auth_token !== 'undefined');
+
+  if (!authStore.user) {
+    console.log('AdminDashboard: No user in authStore. Waiting for onAuthStateChanged...');
+    await new Promise(resolve => {
+      const unsubscribe = auth.onAuthStateChanged(async firebaseUser => {
+        console.log('AdminDashboard: onAuthStateChanged fired. User:', firebaseUser ? firebaseUser.uid : 'null');
+        if (firebaseUser) {
+          authStore.setUser(firebaseUser);
+          await checkAdminAccess(firebaseUser.uid);
+        } else {
+          authStore.clearUser();
+          console.log('AdminDashboard: No user logged in. Attempting initial sign-in.');
+          try {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+              console.log('AdminDashboard: Attempting signInWithCustomToken...');
+              await signInWithCustomToken(auth, __initial_auth_token);
+              console.log('AdminDashboard: signInWithCustomToken successful.');
+            } else {
+              console.log('AdminDashboard: __initial_auth_token not found, attempting signInAnonymously...');
+              await signInAnonymously(auth);
+              console.log('AdminDashboard: signInAnonymously successful.');
+            }
+          } catch (signInError) {
+            console.error('AdminDashboard: Error during initial sign-in attempt:', signInError);
+            displayMessage(`Sign-in failed: ${signInError.message}`, 'error');
+            router.push('/login');
+          }
+        }
+        unsubscribe();
+        resolve();
+      });
+    });
+  } else {
+    console.log('AdminDashboard: authStore.user already exists:', authStore.user.uid);
+    await checkAdminAccess(authStore.user.uid);
   }
-})
+
+  // Final check and data fetching if user is confirmed admin
+  if (authStore.user && authStore.user.uid && isAdmin.value) {
+    console.log('AdminDashboard: Final check - User is confirmed admin. Fetching data.');
+    try {
+        await universityStore.fetchUniversities();
+        await universityStore.fetchAllLocations();
+        await fetchStats();
+    } catch (err) {
+        console.error("AdminDashboard: Error initializing data:", err);
+        error.value = `Error initializing data: ${err.message}`;
+        displayMessage(`Error initializing data: ${err.message}`, 'error');
+        router.push('/login');
+    }
+  } else if (authStore.user && authStore.user.uid && !isAdmin.value) {
+      console.warn('AdminDashboard: User is NOT admin after all attempts. Redirecting.');
+      displayMessage('Access Denied: You are not authorized to view the admin dashboard.', 'error');
+      router.push('/login');
+  } else if (!authStore.user) {
+      console.warn('AdminDashboard: No user in authStore after onMounted. Redirecting to login.');
+      router.push('/login');
+  }
+});
 </script>
 
 

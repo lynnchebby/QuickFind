@@ -20,7 +20,7 @@
           <option value="" disabled>Select your role</option>
           <option value="admin">Admin</option>
           <option value="caretaker">Caretaker</option>
-          <option value="student">Student</option>
+          <option value="tenant">Tenant</option>
         </select>
       </div>
 
