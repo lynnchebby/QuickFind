@@ -370,7 +370,7 @@ export const useCaretakerStore = defineStore('caretaker', {
      * IMPORTANT: Image deletion from Cloudinary is complex from the frontend directly without an API Secret.
      * For production, this should ideally be handled via a secure backend/serverless function.
      */
-    async deleteHostel(caretakerUid: string, universityId: string, locationId: string, hostelId: string, imageUrls: string[] = []) { // Added default empty array for imageUrls
+    async deleteHostel(caretakerUid: string, universityId: string, locationId: string, hostelId: string, imageUrls: string[] = []) {
       this.loading = true;
       this.error = null;
       try {

@@ -74,7 +74,7 @@ export const useAuthStore = defineStore('auth', {
                 userRole = data.role || 'student';
                 userPhoneNumber = data.phoneNumber || null;
                 userAccessPin = data.accessPin || null;
-                console.log('User document loaded from Firestore. Role:', userRole);
+                console.log('User document loaded from Firestore. Role:',userRole );
               }
 
               if (this.user) {
@@ -104,7 +104,7 @@ export const useAuthStore = defineStore('auth', {
               } else if (this.user?.role === 'admin') {
                   router.push('/admin');
               } else {
-                  router.push('/console');
+                  router.push('/tenant');
               }
 
             } catch (firestoreError: any) {
