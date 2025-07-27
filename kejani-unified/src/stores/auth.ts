@@ -183,7 +183,7 @@ export const useAuthStore = defineStore('auth', {
         } else if (role === 'admin') {
           router.push('/admin');
         } else {
-          router.push('/console');
+          router.push('/tenant');
         }
 
         console.log('User signed up with email/pass and profile created:', firebaseUser.uid, 'Role:', role);
@@ -274,7 +274,7 @@ export const useAuthStore = defineStore('auth', {
         } else if (role === 'admin') {
           router.push('/admin');
         } else {
-          router.push('/console');
+          router.push('/tenant');
         }
 
         console.log('Logged in with Google, UID:', firebaseUser.uid, 'Final Role:', role);

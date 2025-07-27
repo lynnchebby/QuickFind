@@ -412,235 +412,83 @@
       </div>
     </div>
 
-    <!-- Add Home Modal -->
-    <div v-if="showAddHomeModal" class="fixed inset-0 z-[100] overflow-y-auto bg-gray-900 bg-opacity-50 flex justify-center items-center p-4">
-      <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-xl w-full max-w-md p-6 animate-scale-in">
-        <h3 class="text-xl font-semibold text-gray-800 dark:text-neutral-200 mb-4">Add New Home</h3>
-        <div class="space-y-4">
-          <div>
-            <label for="addHomeUniversitySelect" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Select University</label>
-            <select id="addHomeUniversitySelect" v-model="selectedUniversityId" @change="fetchLocations(selectedUniversityId)"
-                    class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
-              <option value="">-- Select University --</option>
-              <option v-for="uni in universityStore.universities" :key="uni.id" :value="uni.id">
-                {{ uni.name }}
-              </option>
-            </select>
-          </div>
-          <div>
-            <label for="addHomeLocationSelect" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Select Location</label>
-            <select id="addHomeLocationSelect" v-model="locationId"
-                    class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
-                    :disabled="!selectedUniversityId || locations.length === 0">
-              <option value="">-- Select Location --</option>
-              <option v-for="loc in locations" :key="loc.id" :value="loc.id">
-                {{ loc.name }}
-              </option>
-            </select>
-          </div>
-          <!-- NEW: Select Caretaker for Home -->
-          <div>
-            <label for="selectCaretakerForHome" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Assign Caretaker</label>
-            <select id="selectCaretakerForHome" v-model="selectedCaretakerForHome"
-                    class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
-              <option value="">-- Select Caretaker --</option>
-              <option v-for="caretaker in caretakersList" :key="caretaker.uid" :value="caretaker.uid">
-                {{ caretaker.displayName }} ({{ caretaker.email }})
-              </option>
-            </select>
-          </div>
-          <!-- END NEW -->
-          <div>
-            <label for="newHomeName" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Home Name</label>
-            <input type="text" id="newHomeName" v-model="newHomeName"
-                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
-                   placeholder="e.g., Sunshine Hostel">
-          </div>
-          <div>
-            <label for="newHomeAddress" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Address (Optional)</label>
-            <input type="text" id="newHomeAddress" v-model="newHomeAddress"
-                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
-                   placeholder="e.g., 123 Main St">
-          </div>
-          <div>
-            <label for="newHomeRooms" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Number of Rooms (Optional)</label>
-            <input type="number" id="newHomeRooms" v-model.number="newHomeRooms"
-                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
-                   placeholder="e.g., 10">
-          </div>
-          <div>
-            <label for="newHomeCaretakerPhoneNumber" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Caretaker Phone Number</label>
-            <input type="text" id="newHomeCaretakerPhoneNumber" v-model="newHomeCaretakerPhoneNumber"
-                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
-                   placeholder="e.g., +254712345678">
-          </div>
-          <div>
-            <label for="newHomeRent" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Rent (per month)</label>
-            <input type="number" id="newHomeRent" v-model.number="newHomeRent"
-                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
-                   placeholder="e.g., 5000">
-          </div>
-          <div>
-            <label for="newHomeDeposit" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Deposit</label>
-            <input type="number" id="newHomeDeposit" v-model.number="newHomeDeposit"
-                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
-                   placeholder="e.g., 2500">
-          </div>
-          <div>
-            <label for="newHomeType" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Hostel Type</label>
-            <select id="newHomeType" v-model="newHomeType"
-                    class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
-              <option value="">-- Select Type --</option>
-              <option value="Bedsitter">Bedsitter</option>
-              <option value="One Bedroom">One Bedroom</option>
-              <option value="Shared Room">Shared Room</option>
-              <option value="Two Bedroom">Two Bedroom</option>
-            </select>
-          </div>
+   
 
-          <!-- Image Upload Section -->
-          <div class="mt-4">
-            <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Home Images (Max 3)</label>
-            <div class="flex flex-wrap gap-2 mb-4">
-              <div v-for="(file, index) in newHomeImageFiles" :key="index" class="relative">
-                <img :src="URL.createObjectURL(file)" class="w-24 h-24 object-cover rounded-md border border-gray-300" />
-                <button @click="removeNewHomeImage(index)" class="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 text-xs">
-                  &times;
-                </button>
-              </div>
-            </div>
-            <div class="flex items-center justify-center w-full">
-              <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-neutral-700 dark:bg-neutral-800 hover:bg-gray-100 dark:border-neutral-700 dark:hover:border-gray-600">
-                <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                  <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-neutral-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
-                  </svg>
-                  <p class="mb-2 text-sm text-gray-500 dark:text-neutral-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
-                  <p class="text-xs text-gray-500 dark:text-neutral-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
-                </div>
-                <input id="dropzone-file" type="file" class="hidden" multiple @change="handleHomeImageFileInputChange" accept="image/*" />
-              </label>
-            </div>
+   <!-- Edit Home Modal - Compact Version -->
+<div v-if="showEditHomeModal" class="fixed inset-0 z-[100] overflow-y-auto bg-gray-900 bg-opacity-50 flex justify-center items-center p-2">
+  <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-xl w-full max-w-xs p-4 animate-scale-in">
+    <h3 class="text-lg font-semibold text-gray-800 dark:text-neutral-200 mb-3">Edit Home</h3>
+    
+    <div class="space-y-2">
+      <!-- Compact Form Fields -->
+      <div v-for="field in [
+        {id: 'editHomeName', label: 'Name', model: editingHome.name, type: 'text'},
+        {id: 'editHomeRooms', label: 'Rooms', model: editingHome.rooms, type: 'number'},
+        {id: 'editHomePhone', label: 'Phone', model: editingHome.caretakerPhoneNumber, type: 'text'},
+        {id: 'editHomeRent', label: 'Rent', model: editingHome.price, type: 'number'},
+        {id: 'editHomeDeposit', label: 'Deposit', model: editingHome.deposit, type: 'number'}
+      ]" :key="field.id">
+        <label :for="field.id" class="block text-xs font-medium text-gray-700 dark:text-neutral-300 mb-1">{{ field.label }}</label>
+        <input :type="field.type" :id="field.id" v-model="field.model"
+               class="py-1 px-2 text-xs block w-full border border-gray-300 rounded focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
+      </div>
+
+      <!-- Type and Availability -->
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label for="editHomeType" class="block text-xs font-medium text-gray-700 dark:text-neutral-300 mb-1">Type</label>
+          <select id="editHomeType" v-model="editingHome.hostelType"
+                  class="py-1 px-2 text-xs block w-full border border-gray-300 rounded focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
+            <option v-for="type in ['Bedsitter','One Bedroom','Shared Room','Two Bedroom']" :value="type">{{ type }}</option>
+          </select>
+        </div>
+        <div class="flex items-end">
+          <input type="checkbox" id="editHomeAvailability" v-model="editingHome.isAvailable"
+                 class="h-3 w-3 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600">
+          <label for="editHomeAvailability" class="ml-1 text-xs text-gray-700 dark:text-neutral-300">Available</label>
+        </div>
+      </div>
+
+      <!-- Images Section -->
+      <div class="mt-2">
+        <label class="block text-xs font-medium text-gray-700 dark:text-neutral-300 mb-1">Images</label>
+        <div v-if="editingHome.imageUrls?.length" class="flex flex-wrap gap-1 mb-1">
+          <div v-for="(url, index) in editingHome.imageUrls" :key="index" class="relative">
+            <img :src="url" class="w-12 h-12 object-cover rounded border border-gray-300 cursor-pointer" @click="openImageViewer(url)">
           </div>
         </div>
-        <div class="flex justify-end gap-x-2 mt-6">
-          <button type="button" @click="showAddHomeModal = false"
-                  class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-md border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-600">
-            Cancel
-          </button>
-          <button type="button" @click="submitAddHome"
-                  class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-md border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none">
-            Add Home
-          </button>
+        
+        <div class="flex flex-wrap gap-1 mb-1">
+          <div v-for="(file, index) in newImageFilesForEdit" :key="index" class="relative">
+            <img :src="URL.createObjectURL(file)" class="w-12 h-12 object-cover rounded border border-gray-300">
+            <button @click="newImageFilesForEdit.splice(index, 1)" class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 text-[8px]">
+              ×
+            </button>
+          </div>
         </div>
+        
+        <label for="edit-dropzone-file" class="flex items-center justify-center w-full h-16 border border-dashed border-gray-300 rounded cursor-pointer bg-gray-50 dark:bg-neutral-700 dark:border-neutral-600">
+          <span class="text-[10px] text-gray-500 dark:text-neutral-400 text-center px-2">
+            Click to upload new images
+          </span>
+          <input id="edit-dropzone-file" type="file" class="hidden" multiple @change="event => newImageFilesForEdit = Array.from(event.target.files)" accept="image/*">
+        </label>
       </div>
     </div>
 
-    <!-- Edit Home Modal -->
-    <div v-if="showEditHomeModal" class="fixed inset-0 z-[100] overflow-y-auto bg-gray-900 bg-opacity-50 flex justify-center items-center p-4">
-      <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-xl w-full max-w-md p-6 animate-scale-in">
-        <h3 class="text-xl font-semibold text-gray-800 dark:text-neutral-200 mb-4">Edit Home: {{ editingHome.name }}</h3>
-        <div class="space-y-4">
-          <div>
-            <label for="editHomeName" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Home Name</label>
-            <input type="text" id="editHomeName" v-model="editingHome.name"
-                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
-                   placeholder="Home Name">
-          </div>
-          <div>
-            <label for="editHomeAddress" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Address (Optional)</label>
-            <input type="text" id="editHomeAddress" v-model="editingHome.address"
-                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
-                   placeholder="e.g., 123 Main St">
-          </div>
-          <div>
-            <label for="editHomeRooms" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Number of Rooms (Optional)</label>
-            <input type="number" id="editHomeRooms" v-model.number="editingHome.rooms"
-                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
-                   placeholder="e.g., 10">
-          </div>
-          <div>
-            <label for="editHomeCaretakerPhoneNumber" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Caretaker Phone Number</label>
-            <input type="text" id="editHomeCaretakerPhoneNumber" v-model="editingHome.caretakerPhoneNumber"
-                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
-                   placeholder="e.g., +254712345678">
-          </div>
-          <div>
-            <label for="editHomeRent" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Rent (per month)</label>
-            <input type="number" id="editHomeRent" v-model.number="editingHome.price"
-                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
-                   placeholder="e.g., 5000">
-          </div>
-          <div>
-            <label for="editHomeDeposit" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Deposit</label>
-            <input type="number" id="editHomeDeposit" v-model.number="editingHome.deposit"
-                   class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
-                   placeholder="e.g., 2500">
-          </div>
-          <div>
-            <label for="editHomeType" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Hostel Type</label>
-            <select id="editHomeType" v-model="editingHome.hostelType"
-                    class="py-2 px-3 block w-full border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
-              <option value="">-- Select Type --</option>
-              <option value="Bedsitter">Bedsitter</option>
-              <option value="One Bedroom">One Bedroom</option>
-              <option value="Shared Room">Shared Room</option>
-              <option value="Two Bedroom">Two Bedroom</option>
-            </select>
-          </div>
-          <div>
-            <label for="editHomeAvailability" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Availability</label>
-            <input type="checkbox" id="editHomeAvailability" v-model="editingHome.isAvailable"
-                   class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600">
-            <span class="ml-2 text-gray-700 dark:text-neutral-300">{{ editingHome.isAvailable ? 'Available' : 'Not Available' }}</span>
-          </div>
-          <!-- Current Images Display (for editing) -->
-          <div v-if="editingHome.imageUrls && editingHome.imageUrls.length > 0">
-            <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Current Images</label>
-            <div class="flex flex-wrap gap-2">
-              <div v-for="(url, index) in editingHome.imageUrls" :key="index" class="relative">
-                <img :src="url" class="w-24 h-24 object-cover rounded-md border border-gray-300 cursor-pointer" @click="openImageViewer(url)" />
-                <!-- No delete button here, as image deletion is complex from frontend -->
-              </div>
-            </div>
-          </div>
-          <!-- New Image Upload for Edit (Currently displays message, actual upload logic needed in script) -->
-          <div class="mt-4">
-            <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Upload New Images (Max 3)</label>
-            <div class="flex flex-wrap gap-2 mb-4">
-              <div v-for="(file, index) in newImageFilesForEdit" :key="index" class="relative">
-                <img :src="URL.createObjectURL(file)" class="w-24 h-24 object-cover rounded-md border border-gray-300" />
-                <button @click="newImageFilesForEdit.splice(index, 1)" class="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 text-xs">
-                  &times;
-                </button>
-              </div>
-            </div>
-            <div class="flex items-center justify-center w-full">
-              <label for="edit-dropzone-file" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-neutral-700 dark:bg-neutral-800 hover:bg-gray-100 dark:border-neutral-700 dark:hover:border-gray-600">
-                <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                  <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-neutral-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
-                  </svg>
-                  <p class="mb-2 text-sm text-gray-500 dark:text-neutral-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
-                  <p class="text-xs text-gray-500 dark:text-neutral-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
-                </div>
-                <input id="edit-dropzone-file" type="file" class="hidden" multiple @change="event => newImageFilesForEdit = Array.from(event.target.files)" accept="image/*" />
-              </label>
-            </div>
-          </div>
-        </div>
-        <div class="flex justify-end gap-x-2 mt-6">
-          <button type="button" @click="showEditHomeModal = false"
-                  class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-md border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-700 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-600">
-            Cancel
-          </button>
-          <button type="button" @click="submitEditHome"
-                  class="py-2 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-md border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none">
-            Save Changes
-          </button>
-        </div>
-      </div>
+    <!-- Compact Action Buttons -->
+    <div class="flex justify-end gap-x-2 mt-3">
+      <button @click="showEditHomeModal = false"
+              class="py-1 px-3 text-xs font-medium rounded border border-gray-200 bg-white text-gray-800 hover:bg-gray-50 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
+        Cancel
+      </button>
+      <button @click="submitEditHome"
+              class="py-1 px-3 text-xs font-medium rounded bg-blue-600 text-white hover:bg-blue-700">
+        Save
+      </button>
     </div>
+  </div>
+</div>
 
     <!-- Confirmation Modal (for delete actions) -->
     <div v-if="showConfirmationModal" class="fixed inset-0 z-[100] overflow-y-auto bg-gray-900 bg-opacity-50 flex justify-center items-center p-4">
@@ -665,8 +513,6 @@
 
   </div>
 </template>
-
-
 
 
 <script setup>
