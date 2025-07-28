@@ -33,6 +33,7 @@
           </li>
         </ul>
       </nav>
+      <button class="logout-btn" @click="logout">Logout</button>
     </div>
   </header>
 
@@ -76,6 +77,19 @@
                 {{ loc.name }}
               </option>
             </select>
+          </div>
+          <div class="select-group">
+          <label for="house-type-select">House Type:</label>
+          <select id="house-type-select" v-model="selectedHouseType">
+            <option value="">Select House Type</option>
+            <option
+              v-for="type in houseTypes"
+              :key="type.id"
+              :value="type.id"
+            >
+              {{ type.name }}
+            </option>
+          </select>
           </div>
         </div>
 
@@ -238,7 +252,7 @@
         </div>
         <div class="about-image">
           <img
-            src="https://images.unsplash.com/photo-1581092795360-8209e5445d0f?auto=format&fit=crop&w=800&q=80"
+            src="./realestate.jpg"
             alt="Our Mission"
           />
         </div>
@@ -292,14 +306,18 @@
 <script setup>
 import { ref, computed, watch, onMounted } from "vue";
 import { useUniversityStore } from "@/stores/additionStore.ts";
+import { useRouter } from 'vue-router';
 const universityStore = useUniversityStore();
+const router = useRouter();
 const username = ref("Guest"),
   activeSection = ref("home"),
   selectedUniversity = ref(""),
   selectedLocation = ref(""),
+  selectedHouseType = ref(""),
   availabilityFilter = ref("all"),
   locations = ref([]),
   homes = ref([]),
+  houseTypes = ref([]),
   noHostelsMessage = ref(""),
   showCaretakerModal = ref(false),
   selectedHouseForInquiry = ref(null),
@@ -311,17 +329,37 @@ const toggleFaq = (index) => {
   universities = computed(() => universityStore.universities),
   availableLocations = computed(() => locations.value),
   filteredHomes = computed(() => {
+    if (!selectedUniversity.value || !selectedLocation.value || !selectedHouseType.value) {
+      return []; // No homes displayed until all three are picked
+    }
+    let currentHomes = homes.value;
+    if (selectedHouseType.value) {
+      currentHomes = currentHomes.filter(
+        (h) => h.hostelType === selectedHouseType.value
+      );
+    }
     if (availabilityFilter.value === "available")
-      return homes.value.filter((h) => h.isAvailable);
+      currentHomes = currentHomes.filter((h) => h.isAvailable);
     else if (availabilityFilter.value === "not-available")
-      return homes.value.filter((h) => !h.isAvailable);
-    return homes.value;
+      currentHomes = currentHomes.filter((h) => !h.isAvailable);
+    if (selectedUniversity.value && selectedLocation.value && selectedHouseType.value && currentHomes.length === 0) {
+      noHostelsMessage.value = "No hostels of this type found here.";
+    } else {
+      noHostelsMessage.value = ""; // Clear message if results are found or filters are incomplete
+    }
+    return currentHomes;
   });
 onMounted(async () => {
   await universityStore.fetchUniversities();
+  const storedUsername = localStorage.getItem('username');
+  if (storedUsername) {
+    username.value = storedUsername;
+  }
 });
 watch(selectedUniversity, async (newUni) => {
   selectedLocation.value = "";
+  selectedHouseType.value = "";
+  availabilityFilter.value = "all";
   homes.value = [];
   noHostelsMessage.value = "";
   if (newUni) locations.value = await universityStore.getLocations(newUni);
@@ -329,6 +367,9 @@ watch(selectedUniversity, async (newUni) => {
 });
 watch(selectedLocation, async (newLoc) => {
   noHostelsMessage.value = "";
+  selectedHouseType.value = "";
+  availabilityFilter.value = "all";
+  homes.value = [];
   if (selectedUniversity.value && newLoc) {
     const rawHomes = await universityStore.getHostels(
       selectedUniversity.value,
@@ -359,8 +400,40 @@ watch(selectedLocation, async (newLoc) => {
         email: h.caretaker?.email || "Not Provided",
       },
     }));
+    populateHouseTypesFromHomes(); 
   } else homes.value = [];
 });
+watch(selectedHouseType, (newType) => {
+  if (!newType) {
+    noHostelsMessage.value = ""; // Clear message when house type is unselected
+  }
+  availabilityFilter.value = "all"; // Reset availability filter when type changes
+});
+const populateHouseTypesFromHomes = () => {
+  const uniqueTypes = new Set();
+  homes.value.forEach(home => {
+    if (home.hostelType && home.hostelType !== 'N/A') { // Avoid 'N/A' or empty types
+      uniqueTypes.add(home.hostelType);
+    }
+  });
+
+  // Convert Set to an array of objects with 'id' and 'name'
+  houseTypes.value = Array.from(uniqueTypes).map(type => ({
+    id: type,
+    name: formatHostelTypeName(type) // Use a helper to format for display
+  }));
+  houseTypes.value.sort((a, b) => a.name.localeCompare(b.name));
+
+  console.log("Derived House Types from Homes:", houseTypes.value);
+}
+const formatHostelTypeName = (typeString) => {
+  if (!typeString) return "N/A";
+  // Replace underscores with spaces and capitalize each word
+  return typeString
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
 function setActiveSection(sectionId) {
   activeSection.value = sectionId;
 }
@@ -388,6 +461,11 @@ async function submitInquiry() {
   alert("Your inquiry has been sent!");
   inquiryMessage.value = "";
   showCaretakerModal.value = false;
+}
+function logout() {
+  localStorage.removeItem('authToken') // or 'token'
+  username.value = 'Guest' // Optional: reset any local state
+  router.push('/login') // Redirect to login page
 }
 </script>
 
@@ -762,5 +840,20 @@ body {
   color: #666;
   border-top: 1px solid #f0f0f0;
   margin-top: -1px;
+}
+.logout-btn {
+  background-color: #423cf5;
+  color: #fff;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 16px;
+  margin-left: 25px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.logout-btn:hover {
+  background-color: #623ef0;
 }
 </style>
