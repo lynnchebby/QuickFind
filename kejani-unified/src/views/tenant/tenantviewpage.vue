@@ -464,7 +464,7 @@ async function submitInquiry() {
 }
 function logout() {
   localStorage.removeItem('authToken') // or 'token'
-  username.value = 'Guest' // Optional: reset any local state
+  username.value = 'tenant' // Optional: reset any local state
   router.push('/login') // Redirect to login page
 }
 </script>

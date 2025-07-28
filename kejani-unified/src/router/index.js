@@ -13,8 +13,8 @@ const routes = [
   { path: '/reset-password', name: 'ResetPassword', component: ResetPassword },
   { path: '/admin', name: 'Admin', component: AdminDashboard },
   { path: '/caretaker', name: 'Caretaker', component: CaretakerDashboard },
-  { path: '/tenant', name: 'TenantViewing', component: TenantViewPage }, // New route for your tenant-viewing-page
-  // { path: '/console', name: 'Console', component: SignIn }
+  { path: '/tenant', name: 'TenantViewing', component: TenantViewPage },
+  { path: '/student', redirect: '/tenant' },
 ]
 
 const router = createRouter({
