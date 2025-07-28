@@ -40,7 +40,7 @@
     <section id="home" v-show="activeSection === 'home'">
       <div class="hero-section">
         <div class="hero-content">
-          <h1>Welcome, {{ username }} to Quick Find</h1>
+          <h1>Welcome, {{ username }}, to Quick Find</h1>
           <p>
             Discover your ideal accommodation with ease. Secure, affordable, and
             just for you.
@@ -229,7 +229,7 @@
         <div class="about-text">
           <h3>Our Mission</h3>
           <p>
-            At Quick Find, we're committed to making student housing more
+            At Quick Find, we're committed to making housing more
             accessible, secure, and convenient. We understand the hustle of
             finding a reliable hostel near your university, so we've built a
             platform that brings options closer to you, helping you compare and
