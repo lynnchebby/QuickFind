@@ -60,6 +60,9 @@
           :required="role === 'admin' || role === 'caretaker'"
           minlength="3"
         />
+        <p v-if="role === 'caretaker'" class="text-sm text-neutral-400 mt-2">
+          Need help enlisting a house? Contact admin <span class="text-white font-medium">+254712345678</span>
+        </p>
       </div>
 
       <button

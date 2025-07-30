@@ -171,7 +171,7 @@
             {{ noHostelsMessage }}
           </p>
           <p v-else-if="filteredHomes.length === 0" class="no-results">
-            Choose University and Location first.
+            Choose University, Location and House Type first.
           </p>
         </div>
       </div>
@@ -216,19 +216,7 @@
             {{ selectedHouseForInquiry.availableRooms ?? "N/A" }}
           </p>
           <p>
-            <strong>WhatsApp:</strong>
-            <a
-              :href="`https://wa.me/${selectedHouseForInquiry.caretaker?.phone.replace(
-                /\D/g,
-                ''
-              )}?text=Hi,%20I%27m%20interested%20in%20your%20hostel:%20${
-                selectedHouseForInquiry.name
-              }`"
-              target="_blank"
-              rel="noopener"
-              class="whatsapp-link"
-              >Chat on WhatsApp</a
-            >
+            
           </p>
           <button class="close-modal-btn" @click="showCaretakerModal = false">
             Close

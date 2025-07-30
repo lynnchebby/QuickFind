@@ -21,9 +21,4 @@ const router = createRouter({
   history: createWebHistory(),
   routes
 })
-
-// Optional: If you have navigation guards (router.beforeEach) in your setup,
-// ensure they correctly use the defined route names (e.g., 'Login' or 'login-page')
-// when redirecting. If you're using 'useAuthStore' in your guards, make sure to import it.
-
 export default router

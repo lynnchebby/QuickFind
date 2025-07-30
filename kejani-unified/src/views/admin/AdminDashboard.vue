@@ -1,6 +1,5 @@
 <template>
   <div class="min-h-screen bg-white text-gray-800 dark:text-neutral-200 overflow-hidden relative">
-    <!-- Decorative SVG Background Elements -->
     <div class="absolute top-0 end-0 -translate-y-1/4 translate-x-1/4 z-0 opacity-30 animate-float-1 hidden md:block">
       <svg class="w-64 h-auto text-blue-200 dark:text-blue-800" fill="none" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
         <circle cx="100" cy="100" r="80" stroke="currentColor" stroke-width="5" stroke-dasharray="10 5" />
@@ -31,7 +30,6 @@
         </p>
       </div>
 
-      <!-- Global Loading and Error Messages -->
       <div v-if="isLoading" class="text-center text-blue-600 dark:text-blue-400 my-8 py-4 px-6 bg-blue-50 dark:bg-neutral-900 rounded-lg shadow-md border border-blue-200 dark:border-blue-700">
         <div class="flex items-center justify-center space-x-2">
           <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -42,7 +40,6 @@
         </div>
       </div>
 
-      <!-- Unified Message Display -->
       <div v-if="showMessage" :class="{
         'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-700': messageType === 'success',
         'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-700': messageType === 'error'
@@ -65,7 +62,6 @@
 
         <hr class="my-8 border-gray-200 dark:border-neutral-700" />
 
-        <!-- Manage Universities Section -->
         <div class="bg-white rounded-xl shadow-lg dark:bg-neutral-900 p-7 sm:p-10 border border-gray-200 dark:border-neutral-800 mb-8 animate-fade-in-down">
           <div class="flex flex-col sm:flex-row justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-gray-800 dark:text-neutral-200 mb-4 sm:mb-0">Manage Universities</h2>
@@ -99,7 +95,6 @@
                   {{ university.name }}
                 </option>
               </select>
-              <!-- Changed @click to openAddUniversityModal -->
               <button
                 @click="openAddUniversityModal"
                 class="py-2 px-6 rounded-full font-medium transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 w-full sm:w-auto bg-blue-600 text-white shadow-md"
@@ -114,14 +109,12 @@
                 <li v-for="uni in universityStore.universities" :key="uni.id" class="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-gray-50 dark:bg-neutral-800 p-3 rounded-md shadow-sm border border-gray-200 dark:border-neutral-700">
                   <span class="text-gray-800 dark:text-neutral-300 font-medium mb-2 sm:mb-0">{{ uni.name }}</span>
                   <div class="flex space-x-2">
-                    <!-- Changed @click to pass the whole object -->
                     <button @click="editUniversity(uni)" class="py-1.5 px-3 inline-flex items-center justify-center gap-x-1 text-xs font-semibold rounded-md border border-transparent bg-blue-600 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 transition-all duration-200" title="Edit University">
                       <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zm-3.646 3.646L6.5 13.086V16h2.914l6.364-6.364-2.828-2.828z" />
                       </svg>
                       Edit
                     </button>
-                    <!-- Changed @click to use confirmAction -->
                     <button @click="deleteUniversity(uni.id, uni.name)" class="py-1.5 px-3 inline-flex items-center justify-center gap-x-1 text-xs font-semibold rounded-md border border-transparent bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 transition-all duration-200" title="Delete University">
                       <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1zm1 3a1 1 0 100 2h4a1 1 0 100-2H8z" clip-rule="evenodd" />
@@ -138,7 +131,6 @@
 
         <hr class="my-8 border-gray-200 dark:border-neutral-700" />
 
-        <!-- Manage Locations Section -->
         <div class="bg-white rounded-xl shadow-lg dark:bg-neutral-900 p-7 sm:p-10 border border-gray-200 dark:border-neutral-800 mb-8 animate-fade-in-down">
           <div class="flex flex-col sm:flex-row justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-gray-800 dark:text-neutral-200 mb-4 sm:mb-0">Manage Locations</h2>
@@ -173,7 +165,6 @@
                   {{ loc.name }}
                 </option>
               </select>
-              <!-- Changed @click to openAddLocationModal -->
               <button
                 @click="openAddLocationModal"
                 class="py-2 px-6 rounded-full font-medium transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 w-full sm:w-auto bg-blue-600 text-white shadow-md"
@@ -188,14 +179,12 @@
                 <li v-for="loc in locations" :key="loc.id" class="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-gray-50 dark:bg-neutral-800 p-3 rounded-md shadow-sm border border-gray-200 dark:border-border-neutral-700">
                   <span class="text-gray-800 dark:text-neutral-300 font-medium mb-2 sm:mb-0">{{ loc.name }}</span>
                   <div class="flex space-x-2">
-                    <!-- Changed @click to pass the whole object -->
                     <button @click="editLocation(loc)" class="py-1.5 px-3 inline-flex items-center justify-center gap-x-1 text-xs font-semibold rounded-md border border-transparent bg-blue-600 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 transition-all duration-200" title="Edit Location">
                       <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zm-3.646 3.646L6.5 13.086V16h2.914l6.364-6.364-2.828-2.828z" />
                       </svg>
                       Edit
                     </button>
-                    <!-- Changed @click to use confirmAction -->
                     <button @click="deleteLocation(loc.id, loc.name)" class="py-1.5 px-3 inline-flex items-center justify-center gap-x-1 text-xs font-semibold rounded-md border border-transparent bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 transition-all duration-200" title="Delete Location">
                       <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1zm1 3a1 1 0 100 2h4a1 1 0 100-2H8z" clip-rule="evenodd" />
@@ -212,7 +201,6 @@
 
         <hr class="my-8 border-gray-200 dark:border-neutral-700" />
 
-        <!-- Manage Homes Section -->
         <div class="bg-white rounded-xl shadow-lg dark:bg-neutral-900 p-7 sm:p-10 border border-gray-200 dark:border-neutral-800 mb-8 animate-fade-in-down">
           <div class="flex flex-col sm:flex-row justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-gray-800 dark:text-neutral-200 mb-4 sm:mb-0">Manage Homes</h2>
@@ -247,7 +235,6 @@
                   {{ home.name || 'Unnamed Home' }}
                 </option>
               </select>
-              <!-- Changed @click to openAddHomeModal -->
               <button
                 @click="openAddHomeModal"
                 class="py-2 px-6 rounded-full font-medium transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 w-full sm:w-auto bg-blue-600 text-white shadow-md"
@@ -262,14 +249,12 @@
                 <li v-for="home in homes" :key="home.id" class="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-gray-50 dark:bg-neutral-800 p-3 rounded-md shadow-sm border border-gray-200 dark:border-neutral-700">
                   <span class="text-gray-800 dark:text-neutral-300 font-medium mb-2 sm:mb-0">{{ home.name || 'Unnamed Home' }}</span>
                   <div class="flex space-x-2">
-                    <!-- Changed @click to pass the whole object -->
                     <button @click="editHome(home)" class="py-1.5 px-3 inline-flex items-center justify-center gap-x-1 text-xs font-semibold rounded-md border border-transparent bg-blue-600 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 transition-all duration-200" title="Edit Home">
                       <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zm-3.646 3.646L6.5 13.086V16h2.914l6.364-6.364-2.828-2.828z" />
                       </svg>
                       Edit
                     </button>
-                    <!-- Changed @click to use confirmAction -->
                     <button @click="deleteHome(home.id, home.name)" class="py-1.5 px-3 inline-flex items-center justify-center gap-x-1 text-xs font-semibold rounded-md border border-transparent bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 transition-all duration-200" title="Delete Home">
                       <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1zm1 3a1 1 0 100 2h4a1 1 0 100-2H8z" clip-rule="evenodd" />
@@ -294,9 +279,6 @@
       </div>
     </div>
 
-    <!-- Modals (Add/Edit/Confirm) -->
-
-    <!-- Add University Modal -->
     <div v-if="showAddUniversityModal" class="fixed inset-0 z-[100] overflow-y-auto bg-gray-900 bg-opacity-50 flex justify-center items-center p-4">
       <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-xl w-full max-w-md p-6 animate-scale-in">
         <h3 class="text-xl font-semibold text-gray-800 dark:text-neutral-200 mb-4">Add New University</h3>
@@ -321,7 +303,6 @@
       </div>
     </div>
 
-    <!-- Edit University Modal -->
     <div v-if="showEditUniversityModal" class="fixed inset-0 z-[100] overflow-y-auto bg-gray-900 bg-opacity-50 flex justify-center items-center p-4">
       <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-xl w-full max-w-md p-6 animate-scale-in">
         <h3 class="text-xl font-semibold text-gray-800 dark:text-neutral-200 mb-4">Edit University</h3>
@@ -346,7 +327,6 @@
       </div>
     </div>
 
-    <!-- Add Location Modal -->
     <div v-if="showAddLocationModal" class="fixed inset-0 z-[100] overflow-y-auto bg-gray-900 bg-opacity-50 flex justify-center items-center p-4">
       <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-xl w-full max-w-md p-6 animate-scale-in">
         <h3 class="text-xl font-semibold text-gray-800 dark:text-neutral-200 mb-4">Add New Location</h3>
@@ -387,7 +367,6 @@
       </div>
     </div>
 
-    <!-- Edit Location Modal -->
     <div v-if="showEditLocationModal" class="fixed inset-0 z-[100] overflow-y-auto bg-gray-900 bg-opacity-50 flex justify-center items-center p-4">
       <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-xl w-full max-w-md p-6 animate-scale-in">
         <h3 class="text-xl font-semibold text-gray-800 dark:text-neutral-200 mb-4">Edit Location</h3>
@@ -412,85 +391,99 @@
       </div>
     </div>
 
-   
+    <div v-if="showEditHomeModal" class="fixed inset-0 z-[100] overflow-y-auto bg-gray-900 bg-opacity-50 flex justify-center items-center p-2">
+      <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-xl w-full max-w-xs p-4 animate-scale-in">
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-neutral-200 mb-3">Edit Home</h3>
 
-   <!-- Edit Home Modal - Compact Version -->
-<div v-if="showEditHomeModal" class="fixed inset-0 z-[100] overflow-y-auto bg-gray-900 bg-opacity-50 flex justify-center items-center p-2">
-  <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-xl w-full max-w-xs p-4 animate-scale-in">
-    <h3 class="text-lg font-semibold text-gray-800 dark:text-neutral-200 mb-3">Edit Home</h3>
-    
-    <div class="space-y-2">
-      <!-- Compact Form Fields -->
-      <div v-for="field in [
-        {id: 'editHomeName', label: 'Name', model: editingHome.name, type: 'text'},
-        {id: 'editHomeRooms', label: 'Rooms', model: editingHome.rooms, type: 'number'},
-        {id: 'editHomePhone', label: 'Phone', model: editingHome.caretakerPhoneNumber, type: 'text'},
-        {id: 'editHomeRent', label: 'Rent', model: editingHome.price, type: 'number'},
-        {id: 'editHomeDeposit', label: 'Deposit', model: editingHome.deposit, type: 'number'}
-      ]" :key="field.id">
-        <label :for="field.id" class="block text-xs font-medium text-gray-700 dark:text-neutral-300 mb-1">{{ field.label }}</label>
-        <input :type="field.type" :id="field.id" v-model="field.model"
-               class="py-1 px-2 text-xs block w-full border border-gray-300 rounded focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
-      </div>
+        <form @submit.prevent="submitEditHome">
+          <div class="space-y-2">
+            <div>
+              <label for="editHomeName" class="block text-xs font-medium text-gray-700 dark:text-neutral-300 mb-1">Name</label>
+              <input type="text" id="editHomeName" v-model="editingHome.name"
+                     class="py-1 px-2 text-xs block w-full border border-gray-300 rounded focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+                     required>
+            </div>
+            <div>
+              <label for="editHomeRooms" class="block text-xs font-medium text-gray-700 dark:text-neutral-300 mb-1">Rooms</label>
+              <input type="number" id="editHomeRooms" v-model.number="editingHome.rooms"
+                     class="py-1 px-2 text-xs block w-full border border-gray-300 rounded focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+                     required min="0">
+            </div>
+            <div>
+              <label for="editHomePhone" class="block text-xs font-medium text-gray-700 dark:text-neutral-300 mb-1">Caretaker Phone</label>
+              <input type="text" id="editHomePhone" v-model="editingHome.caretakerPhoneNumber"
+                     class="py-1 px-2 text-xs block w-full border border-gray-300 rounded focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+                     required>
+            </div>
+            <div>
+              <label for="editHomeRent" class="block text-xs font-medium text-gray-700 dark:text-neutral-300 mb-1">Rent</label>
+              <input type="number" id="editHomeRent" v-model.number="editingHome.price"
+                     class="py-1 px-2 text-xs block w-full border border-gray-300 rounded focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+                     required min="1">
+            </div>
+            <div>
+              <label for="editHomeDeposit" class="block text-xs font-medium text-gray-700 dark:text-neutral-300 mb-1">Deposit</label>
+              <input type="number" id="editHomeDeposit" v-model.number="editingHome.deposit"
+                     class="py-1 px-2 text-xs block w-full border border-gray-300 rounded focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+                     required min="0">
+            </div>
 
-      <!-- Type and Availability -->
-      <div class="grid grid-cols-2 gap-2">
-        <div>
-          <label for="editHomeType" class="block text-xs font-medium text-gray-700 dark:text-neutral-300 mb-1">Type</label>
-          <select id="editHomeType" v-model="editingHome.hostelType"
-                  class="py-1 px-2 text-xs block w-full border border-gray-300 rounded focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
-            <option v-for="type in ['Bedsitter','One Bedroom','Shared Room','Two Bedroom']" :value="type">{{ type }}</option>
-          </select>
-        </div>
-        <div class="flex items-end">
-          <input type="checkbox" id="editHomeAvailability" v-model="editingHome.isAvailable"
-                 class="h-3 w-3 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600">
-          <label for="editHomeAvailability" class="ml-1 text-xs text-gray-700 dark:text-neutral-300">Available</label>
-        </div>
-      </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label for="editHomeType" class="block text-xs font-medium text-gray-700 dark:text-neutral-300 mb-1">Type</label>
+                <select id="editHomeType" v-model="editingHome.hostelType"
+                        class="py-1 px-2 text-xs block w-full border border-gray-300 rounded focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+                        required>
+                  <option value="" disabled>Select Type</option>
+                  <option value="Bedsitter">Bedsitter</option>
+                  <option value="One Bedroom">One Bedroom</option>
+                  <option value="Shared Room">Shared Room</option>
+                  <option value="Two Bedroom">Two Bedroom</option>
+                </select>
+              </div>
+              <div class="flex items-end">
+                <input type="checkbox" id="editHomeAvailability" v-model="editingHome.isAvailable"
+                       class="h-3 w-3 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:bg-neutral-700 dark:border-neutral-600">
+                <label for="editHomeAvailability" class="ml-1 text-xs text-gray-700 dark:text-neutral-300">Available</label>
+              </div>
+            </div>
 
-      <!-- Images Section -->
-      <div class="mt-2">
-        <label class="block text-xs font-medium text-gray-700 dark:text-neutral-300 mb-1">Images</label>
-        <div v-if="editingHome.imageUrls?.length" class="flex flex-wrap gap-1 mb-1">
-          <div v-for="(url, index) in editingHome.imageUrls" :key="index" class="relative">
-            <img :src="url" class="w-12 h-12 object-cover rounded border border-gray-300 cursor-pointer" @click="openImageViewer(url)">
-          </div>
-        </div>
-        
-        <div class="flex flex-wrap gap-1 mb-1">
-          <div v-for="(file, index) in newImageFilesForEdit" :key="index" class="relative">
-            <img :src="URL.createObjectURL(file)" class="w-12 h-12 object-cover rounded border border-gray-300">
-            <button @click="newImageFilesForEdit.splice(index, 1)" class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 text-[8px]">
-              ×
+            <div class="mb-2">
+              <label class="block text-gray-700 text-xs font-bold mb-1">Current Images:</label>
+              <div v-if="editingHome.imageUrls && editingHome.imageUrls.length > 0" class="flex flex-wrap gap-1">
+                <div v-for="(url, index) in editingHome.imageUrls" :key="index" class="relative w-12 h-12 border rounded overflow-hidden">
+                  <img :src="url" alt="Hostel Image" class="w-full h-full object-cover">
+                  <button
+                    @click="removeExistingImage(index)"
+                    type="button"
+                    class="absolute top-0 right-0 bg-red-500 text-white rounded-full p-0.5 text-[8px] flex items-center justify-center"
+                    title="Remove image"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-2 w-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <p v-else class="text-gray-500 text-xs">No current images.</p>
+            </div>
+
+            </div>
+
+          <div class="flex justify-end gap-x-2 mt-3">
+            <button type="button" @click="showEditHomeModal = false"
+                    class="py-1 px-3 text-xs font-medium rounded border border-gray-200 bg-white text-gray-800 hover:bg-gray-50 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
+              Cancel
+            </button>
+            <button type="submit"
+                    class="py-1 px-3 text-xs font-medium rounded bg-blue-600 text-white hover:bg-blue-700">
+              Save
             </button>
           </div>
-        </div>
-        
-        <label for="edit-dropzone-file" class="flex items-center justify-center w-full h-16 border border-dashed border-gray-300 rounded cursor-pointer bg-gray-50 dark:bg-neutral-700 dark:border-neutral-600">
-          <span class="text-[10px] text-gray-500 dark:text-neutral-400 text-center px-2">
-            Click to upload new images
-          </span>
-          <input id="edit-dropzone-file" type="file" class="hidden" multiple @change="event => newImageFilesForEdit = Array.from(event.target.files)" accept="image/*">
-        </label>
+        </form>
       </div>
     </div>
 
-    <!-- Compact Action Buttons -->
-    <div class="flex justify-end gap-x-2 mt-3">
-      <button @click="showEditHomeModal = false"
-              class="py-1 px-3 text-xs font-medium rounded border border-gray-200 bg-white text-gray-800 hover:bg-gray-50 dark:bg-neutral-700 dark:border-neutral-600 dark:text-neutral-300">
-        Cancel
-      </button>
-      <button @click="submitEditHome"
-              class="py-1 px-3 text-xs font-medium rounded bg-blue-600 text-white hover:bg-blue-700">
-        Save
-      </button>
-    </div>
-  </div>
-</div>
-
-    <!-- Confirmation Modal (for delete actions) -->
     <div v-if="showConfirmationModal" class="fixed inset-0 z-[100] overflow-y-auto bg-gray-900 bg-opacity-50 flex justify-center items-center p-4">
       <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-xl w-full max-w-sm p-6 animate-scale-in">
         <h3 class="text-xl font-semibold text-gray-800 dark:text-neutral-200 mb-4">Confirm Action</h3>
@@ -508,8 +501,7 @@
       </div>
     </div>
 
-    <!-- Image Viewer Modal (ensure this component is imported and available) -->
-    <ImageViewerModal :show="showImageViewer" :image-url="currentImageUrl" @close="showImageViewer = false" />
+    
 
   </div>
 </template>
@@ -528,7 +520,10 @@ import { db } from '@/firebase/config';
 // Components
 import CardItem from '@/components/CardItem.vue';
 import CheckIcon from '@/components/icons/CheckIcon.vue';
-import ImageViewerModal from '@/components/ImageViewerModal.vue';
+// ImageViewerModal is kept in case you still want to view existing images,
+// but its usage for adding/editing new ones is removed.
+import ImageViewerModal from '@/components/ImageViewerModal.vue'; 
+
 
 // Instantiate Pinia Stores
 const authStore = useAuthStore();
@@ -561,7 +556,7 @@ const showHomesView = ref(false);
 
 // Selected IDs for navigation
 const selectedUniversityId = ref('');
-const locationId = ref(''); // Keep as locationId to match template for now
+const locationId = ref('');
 const selectedHomeId = ref('');
 
 // Data arrays
@@ -586,7 +581,6 @@ const newHomeCaretakerPhoneNumber = ref('');
 const newHomeRent = ref(null);
 const newHomeDeposit = ref(null);
 const newHomeType = ref('');
-const newHomeImageFiles = ref([]);
 
 // Caretaker selection for adding homes
 const caretakersList = computed(() => caretakerStore.allCaretakers);
@@ -599,7 +593,11 @@ const editingUniversity = reactive({ id: '', name: '' });
 const showEditLocationModal = ref(false);
 const editingLocation = reactive({ id: '', name: '', universityId: '' });
 
-const showEditHomeModal = ref(false);
+
+// --- START: Home Editing Related Code (without image file handling) ---
+const showEditHomeModal = ref(false); // Modal state for editing homes
+
+// Reactive object to hold the data of the home being edited
 const editingHome = reactive({
   id: '',
   name: '',
@@ -609,11 +607,94 @@ const editingHome = reactive({
   price: null,
   deposit: null,
   hostelType: '',
-  imageUrls: [],
+  imageUrls: [], // Now only stores URLs, no file objects
   isAvailable: false,
-  caretakerUid: ''
+  caretakerUid: '',
+  rooms: 0,
 });
-const newImageFilesForEdit = ref([]); // Corrected variable name for edit images
+
+// Function to open the edit home modal and populate its fields
+const editHome = (home) => {
+  // Populate the reactive editingHome object with data from the selected 'home'
+  Object.assign(editingHome, {
+    id: home.id,
+    name: home.name,
+    universityId: home.universityId,
+    locationId: home.locationId,
+    caretakerPhoneNumber: home.caretakerPhoneNumber,
+    price: Number(home.price),
+    deposit: Number(home.deposit),
+    hostelType: home.hostelType,
+    imageUrls: home.imageUrls ? [...home.imageUrls] : [], // Still copy existing URLs
+    isAvailable: home.isAvailable,
+    caretakerUid: home.caretakerUid,
+    rooms: Number(home.availableRooms || 0),
+  });
+
+  // Open the edit modal
+  showEditHomeModal.value = true;
+  error.value = null; // Clear any previous errors
+};
+
+
+// Main function to submit edited home data
+const submitEditHome = async () => {
+  if (!editingHome.id) {
+    displayMessage('Error: No home selected for editing.', 'error');
+    return;
+  }
+  if (!editingHome.name.trim() || !editingHome.hostelType || editingHome.price <= 0 || editingHome.rooms <= 0 || !editingHome.caretakerPhoneNumber.trim()) {
+    displayMessage('Please fill in all required home details correctly.', 'error');
+    return;
+  }
+  if (!editingHome.caretakerUid) {
+    displayMessage('Caretaker UID is missing. Please select a caretaker.', 'error');
+    return;
+  }
+
+  isLoading.value = true;
+
+  try {
+    // Prepare data for Firestore update
+    const homeDataToUpdate = {
+      name: editingHome.name.trim(),
+      caretakerPhoneNumber: editingHome.caretakerPhoneNumber.trim(),
+      price: Number(editingHome.price),
+      deposit: Number(editingHome.deposit),
+      hostelType: editingHome.hostelType,
+      isAvailable: editingHome.isAvailable,
+      availableRooms: Number(editingHome.rooms),
+      imageUrls: editingHome.imageUrls, // Use existing image URLs
+      updatedAt: new Date(),
+    };
+
+    // Call Pinia store action to update the home in Firestore
+    await caretakerStore.updateHostel(
+      editingHome.caretakerUid,
+      editingHome.universityId,
+      editingHome.locationId,
+      editingHome.id,
+      homeDataToUpdate
+    );
+
+    displayMessage(`Home "${editingHome.name}" updated successfully!`, 'success');
+    showEditHomeModal.value = false;
+
+    // Re-fetch homes to reflect changes
+    if (selectedUniversityId.value && locationId.value) {
+      await fetchHomes(selectedUniversityId.value, locationId.value);
+    }
+    await fetchStats(); // Update stats if home count changed (e.g., availability)
+
+  } catch (err) {
+    console.error("Error updating home:", err);
+    displayMessage(`Failed to update home: ${err.message}`, 'error');
+  } finally {
+    isLoading.value = false;
+  }
+};
+// --- END: Home Editing Related Code ---
+
 
 // Search functionality
 const searchQuery = ref('');
@@ -629,10 +710,22 @@ const stats = ref({
 });
 
 const filteredUniversities = computed(() => {
-  if (!searchQuery.value) return universityStore.universities;
-  return universityStore.universities.filter(uni =>
-    uni.name.toLowerCase().includes(searchQuery.value.toLowerCase())
-  );
+  // Ensure universities is an array before filtering
+  if (!universityStore.universities || !Array.isArray(universityStore.universities)) {
+    return []; // Return an empty array or handle appropriately
+  }
+
+  if (!searchQuery.value) {
+    return universityStore.universities;
+  }
+
+  // Optimize: Convert search query to lowercase once
+  const lowerCaseSearchQuery = searchQuery.value.toLowerCase();
+
+  return universityStore.universities.filter(uni => {
+    // Robustness: Check if 'uni' object exists and if 'uni.name' is a string
+    return uni && typeof uni.name === 'string' && uni.name.toLowerCase().includes(lowerCaseSearchQuery);
+  });
 });
 
 const statsCards = computed(() => [
@@ -649,12 +742,12 @@ const statsCards = computed(() => [
   {
     title: 'Total Homes',
     value: stats.value.totalHomes.toLocaleString(),
-    icon: { template: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M21 11V5a2 0 0 0-2-2H5a2 0 0 0-2 2v14a2 2 0 0 0 2 2h6"/><path d="m12 12 4 10 1.7-4.3L22 16Z"/></svg>' }
+    icon: { template: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M21 11V5a2 0 0 0-2-2H5a2 0 0 0-2 2v14a2 0 0 0 2 2h6"/><path d="m12 12 4 10 1.7-4.3L22 16Z"/></svg>' }
   },
   {
     title: 'Pageviews',
     value: stats.value.pageviews.toLocaleString(),
-    icon: { template: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M5 12s2.545-5 7-5c4.454 0 7 5 7 5s-2.546 5-7 5c-4.455 0-7-5-7-5z"/><path d="M12 13a1 1 0 1 0 0-2 1 0 0 0 0 2z"/><path d="M21 17v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2"/><path d="M21 7V5a2 0 0 0-2-2H5a2 0 0 0-2 2v2"/></svg>' }
+    icon: { template: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M5 12s2.545-5 7-5c4.454 0 7 5 7 5s-2.546 5-7 5c-4.455 0-7-5-7-5z"/><path d="M12 13a1 1 0 1 0 0-2 1 0 0 0 0 2z"/><path d="M21 17v2a2 0 0 1-2 2H5a2 2 0 01-2-2v-2"/><path d="M21 7V5a2 0 0 0-2-2H5a2 0 00-2 2v2"/></svg>' }
   }
 ]);
 
@@ -742,7 +835,6 @@ const submitAddUniversity = async () => {
   }
 };
 
-// FIX: Updated editUniversity to open modal and populate editing object
 const editUniversity = (university) => {
   editingUniversity.id = university.id;
   editingUniversity.name = university.name;
@@ -750,7 +842,6 @@ const editUniversity = (university) => {
   error.value = null;
 };
 
-// FIX: Added submitEditUniversity function
 const submitEditUniversity = async () => {
   if (!editingUniversity.name) {
     displayMessage('University name cannot be empty.', 'error');
@@ -760,7 +851,7 @@ const submitEditUniversity = async () => {
     await universityStore.updateUniversity(editingUniversity.id, { name: editingUniversity.name.trim() });
     displayMessage('University updated successfully!', 'success');
     showEditUniversityModal.value = false;
-    await universityStore.fetchUniversities(); // Re-fetch to update UI
+    await universityStore.fetchUniversities();
     await fetchStats();
   } catch (err) {
     console.error("Error updating university:", err);
@@ -832,16 +923,14 @@ const fetchLocations = async (universityId) => {
   }
 };
 
-// FIX: Updated editLocation to open modal and populate editing object
 const editLocation = (location) => {
   editingLocation.id = location.id;
   editingLocation.name = location.name;
-  editingLocation.universityId = selectedUniversityId.value; // Ensure universityId is set
+  editingLocation.universityId = selectedUniversityId.value;
   showEditLocationModal.value = true;
   error.value = null;
 };
 
-// FIX: Added submitEditLocation function
 const submitEditLocation = async () => {
   if (!editingLocation.name) {
     displayMessage('Location name cannot be empty.', 'error');
@@ -851,7 +940,7 @@ const submitEditLocation = async () => {
     await universityStore.updateLocation(editingLocation.universityId, editingLocation.id, { name: editingLocation.name.trim() });
     displayMessage('Location updated successfully!', 'success');
     showEditLocationModal.value = false;
-    await fetchLocations(editingLocation.universityId); // Re-fetch to update UI
+    await fetchLocations(editingLocation.universityId);
     await universityStore.fetchAllLocations();
     await fetchStats();
   } catch (err) {
@@ -892,7 +981,6 @@ const openAddHomeModal = async () => {
   newHomeRent.value = null;
   newHomeDeposit.value = null;
   newHomeType.value = '';
-  newHomeImageFiles.value = [];
   selectedCaretakerForHome.value = '';
   showAddHomeModal.value = true;
   error.value = null;
@@ -906,9 +994,10 @@ const openAddHomeModal = async () => {
 };
 
 const submitAddHome = async () => {
+  // Removed newHomeImageFiles.value.length === 0 check
   if (!newHomeName.value || !selectedUniversityId.value || !locationId.value ||
-      !newHomeCaretakerPhoneNumber.value || newHomeRent.value === null || newHomeDeposit.value === null || !newHomeType.value || newHomeImageFiles.value.length === 0 || !selectedCaretakerForHome.value) {
-    displayMessage('Please fill in all required fields, select at least one image, and choose a caretaker.', 'error');
+      !newHomeCaretakerPhoneNumber.value || newHomeRent.value === null || newHomeDeposit.value === null || !newHomeType.value || !selectedCaretakerForHome.value) {
+    displayMessage('Please fill in all required fields and choose a caretaker.', 'error');
     return;
   }
   if (newHomeRent.value <= 0 || newHomeDeposit.value <= 0) {
@@ -926,7 +1015,8 @@ const submitAddHome = async () => {
       newHomeRent.value,
       newHomeDeposit.value,
       newHomeType.value,
-      newHomeImageFiles.value
+      [], // Pass an empty array for imageUrls as images are not handled here
+      newHomeRooms.value
     );
 
     if (!caretakerStore.error) {
@@ -946,29 +1036,6 @@ const submitAddHome = async () => {
   }
 };
 
-const handleHomeImageFileInputChange = (event) => {
-  const files = Array.from(event.target.files).filter(file => file.type.startsWith('image/'));
-  const maxFiles = 3;
-  const currentCount = newHomeImageFiles.value.length;
-  const filesToAddCount = Math.min(files.length, maxFiles - currentCount);
-
-  if (filesToAddCount > 0) {
-    const filesToProcess = files.slice(0, filesToAddCount);
-    newHomeImageFiles.value = [...newHomeImageFiles.value, ...filesToProcess];
-  } else if (files.length > 0) {
-    displayMessage(`You can only upload a maximum of ${maxFiles} images.`, 'error');
-  }
-  event.target.value = '';
-};
-
-const removeNewHomeImage = (index) => {
-  newHomeImageFiles.value.splice(index, 1);
-};
-
-const triggerNewHomeFileInput = (event) => {
-  event.target.closest('.drop-area').querySelector('input[type="file"]').click();
-};
-
 const fetchHomes = async (universityId, locId) => {
   if (!universityId || !locId) {
     homes.value = [];
@@ -986,60 +1053,9 @@ const fetchHomes = async (universityId, locId) => {
   }
 };
 
-const editHome = (home) => {
-  Object.assign(editingHome, { ...home });
-  editingHome.price = Number(home.price);
-  editingHome.deposit = Number(home.deposit);
-  newImageFilesForEdit.value = []; // Corrected variable name
-  showEditHomeModal.value = true;
-  error.value = null;
-};
-
-const submitEditHome = async () => {
-  if (!editingHome.name || !editingHome.caretakerPhoneNumber || editingHome.price === null || editingHome.deposit === null || !editingHome.hostelType) {
-    displayMessage('Please fill in all required fields for editing home.', 'error');
-    return;
-  }
-  if (editingHome.price <= 0 || editingHome.deposit <= 0) {
-    displayMessage('Rent and deposit must be greater than zero.', 'error');
-    return;
-  }
-
-  try {
-    if (newImageFilesForEdit.value.length > 0) { // Corrected variable name
-       displayMessage('New image files selected, but re-upload logic for editing is not fully implemented for admin. Images will not be updated.', 'error');
-    }
-
-    const dataToUpdate = {
-      name: editingHome.name,
-      caretakerPhoneNumber: editingHome.caretakerPhoneNumber,
-      price: editingHome.price,
-      deposit: editingHome.deposit,
-      hostelType: editingHome.hostelType,
-      isAvailable: editingHome.isAvailable,
-    };
-
-    await caretakerStore.updateHostel(
-      editingHome.caretakerUid,
-      editingHome.universityId,
-      editingHome.locationId,
-      editingHome.id,
-      dataToUpdate
-    );
-
-    displayMessage('Home updated successfully!', 'success');
-    showEditHomeModal.value = false;
-    await fetchHomes(editingHome.universityId, editingHome.locationId);
-    await fetchStats();
-  } catch (err) {
-    console.error("Error updating home:", err);
-    displayMessage(`Failed to update home: ${err.message || 'An unknown error occurred.'}`, 'error');
-  }
-};
-
 const deleteHome = async (homeId, homeName) => {
   const universityId = selectedUniversityId.value;
-  const locId = locationId.value; // Use locationId
+  const locId = locationId.value;
   const homeToDelete = homes.value.find(h => h.id === homeId);
 
   if (!universityId || !locId || !homeToDelete) {
@@ -1049,15 +1065,15 @@ const deleteHome = async (homeId, homeName) => {
 
   confirmAction(`Are you sure you want to delete "${homeName}"? This action cannot be undone.`, async () => {
     try {
+      // No longer passing imageUrls from component, assuming store handles all deletion logic
       await caretakerStore.deleteHostel(
         homeToDelete.caretakerUid,
         universityId,
-        locId, // Use locId
-        homeId,
-        homeToDelete.imageUrls
+        locId,
+        homeId
       );
       displayMessage('Home deleted successfully!', 'success');
-      await fetchHomes(universityId, locId); // Use locId
+      await fetchHomes(universityId, locId);
       selectedHomeId.value = '';
       await fetchStats();
     } catch (err) {
@@ -1066,7 +1082,6 @@ const deleteHome = async (homeId, homeName) => {
     }
   });
 };
-
 
 // --- Fetching Data for Stats ---
 const fetchStats = async () => {
@@ -1171,25 +1186,25 @@ const downloadData = async () => {
     let data = ['Universities:'];
     for (const uni of universityStore.universities) {
       data.push(`- ${uni.name} (ID: ${uni.id})`);
-      data.push('  Locations:');
+      data.push('   Locations:');
       const uniLocations = await universityStore.getLocations(uni.id);
       if (uniLocations.length > 0) {
         for (const loc of uniLocations) {
-          data.push(`  - ${loc.name} (ID: ${loc.id})`);
-          data.push('    Homes:');
+          data.push(`   - ${loc.name} (ID: ${loc.id})`);
+          data.push('     Homes:');
           const locHomes = await universityStore.getHostels(uni.id, loc.id);
           if (locHomes.length > 0) {
             locHomes.forEach(home => {
               if (!home.placeholder) {
-                data.push(`    - ${home.name || 'Unnamed Home'} (ID: ${home.id}, Address: ${home.address || 'N/A'}, Rooms: ${home.rooms || 'N/A'}, Caretaker: ${home.caretakerUid || 'N/A'})`);
+                data.push(`     - ${home.name || 'Unnamed Home'} (ID: ${home.id}, Address: ${home.address || 'N/A'}, Rooms: ${home.rooms || 'N/A'}, Caretaker: ${home.caretakerUid || 'N/A'})`);
               }
             });
           } else {
-            data.push('    (No homes)');
+            data.push('     (No homes)');
           }
         }
       } else {
-        data.push('  (No locations)');
+        data.push('   (No locations)');
       }
     }
 
@@ -1230,10 +1245,10 @@ watch(locationId, (newVal) => {
   }
 });
 
-// NEW: Reactive variable to store admin status
+// Reactive variable to store admin status
 const isAdmin = ref(false);
 
-// NEW: Function to check admin access (combining custom claims and Firestore document)
+// Function to check admin access (combining custom claims and Firestore document)
 async function checkAdminAccess(uid) {
   const auth = getAuth();
   let isUserAdmin = false;
